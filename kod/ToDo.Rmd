@@ -12,7 +12,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Pierwszy projekt TWD
 ## Dane PISA
 
+Ciekawe:\
+1. Posiadanie własnego pokoju do nauki/biórka: `CY6_QST_MS_STQ_PBA_Final`: `ST011Q01TA`\
+2. Jak duzo maja samochodow, instrumentow muzycznych?: `ST012Q02TA`\
+3. Jak duzo ksiazek?: `ST013Q01TA`\
+4. Powtarzanie klasy w kontekscie panstwa: `ST127Q01TA`\
+5. Poczucie przynaleznosci spolecznej: `ST034Q01TA`\
+6. Uwaga na zajeciach: `ST097Q01TA`, `ST098Q01TA`\
+7. Ciekawostka: Jak nazywa sie kurs: `ST065Q01NA`\
+8. Uwaga nauczycieli do uczniow: `ST100Q01TA`\
+9. Dyskucje o nauce na zajeciach: `ST103Q01NA`\
+10. Informacje o postepach: `ST104Q01NA`\
+11. Opinia o zanieczyszczeniu srodowiska: `ST092Q01TA`\
+12. Zaciekawienie ucznia przedmiotem: `ST094Q01NA`\
+13. Cel uczenia sie: `ST113Q01TA`\
+14. 
+
+
 Problemy:\
-1. Czemu w danych sa 2 takie same dabelki? O rozszezeniach `.sas7bdat` i `.sas7bdat.format.sas`\
+1. 
 2. 
 
