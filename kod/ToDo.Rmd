@@ -1,0 +1,18 @@
+---
+title: "ToDo"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Pierwszy projekt TWD
+## Dane PISA
+
+Problemy:\
+1. Czemu w danych sa 2 takie same dabelki? O rozszezeniach `.sas7bdat` i `.sas7bdat.format.sas`\
+2. 
+
