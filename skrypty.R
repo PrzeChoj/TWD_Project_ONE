@@ -15,7 +15,16 @@ procent_panstw <- function(dt){
   colnames(wynik)[(length(n)+1)] <- "suma"
   for (i in 1:length(n)){
     panstwa_i <- panstwa[which(dane==n[i])]
-    wynik[,i] <- table(panstwa_i)
+    
+    tabela <- table(panstwa_i)
+    # trzeba zrobic join wynik(rownames) i tabela(names)
+    kolejnosc <- match(rownames(tabela), rownames(wynik))
+    
+    wynik[kolejnosc,i] <- table(panstwa_i)
+    
+    # ale zamiast NA chce miec 0:
+    wynik[,i] <- ifelse(is.na(wynik[,i]), 0, wynik[,i])
+    
     colnames(wynik)[i] <- n[i]
     
     wynik[,length(n)+1] <- wynik[,length(n)+1] + wynik[,i]
