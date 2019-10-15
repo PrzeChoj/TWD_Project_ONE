@@ -13,6 +13,22 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Pierwszy projekt TWD
 ## Dane PISA
 
+Smieszny pdf w ktorym jest co nieco informacji o pytaniach:\
+https://www.oecd-ilibrary.org/docserver/9789264273856-19-en.pdf?expires=1570538884&id=id&accname=guest&checksum=D82A0626AA2869CBC7A2F21A10C55776
+
+Cele:\
+1. Wielka Brytania posiada podział szkół na męskie, żeńskie i mieszane:\
+a) różnice między tymi szkołami między sobą\
+b) czy chlopcy/dziewczyni mają leprze wyniki gdy są zmieszani z inną płcią?\
+
+\
+Info o płci: `ST004` kolumna $29$.
+
+Zrobione:\
+1. A~ Skrypt `procent_panstw` dzielacy dane na panstwa i podajacy procentowy udzial kazdego z wyroznionych elementow w przystepnej formie. Mozliwa pozniejsza modyfikacja do specyficznych celow.\
+2. A~ Tabelki typu `powtarzanie_klasy` informujace o tym w jakich panstwach i jak bardzo uczniowie powtarzali klasy. Najwazniejsza: `powtarzanie_klasy_merged`.
+3. A~ Wykres `posiadanie biurka`. Oczywiście do przyszlej poprawy.
+
 Ciekawe:\
 1. Posiadanie własnego pokoju do nauki/biórka: `CY6_QST_MS_STQ_PBA_Final`: `ST011Q01TA`\
 2. Jak duzo maja samochodow, instrumentow muzycznych?: `ST012Q02TA`\
@@ -31,6 +47,22 @@ Ciekawe:\
 
 
 Problemy:\
-1. 
+1. \
 2. 
+
+Paula:\
+1) Wyciągnac z pliku tekstowego informacje o szkolach w Wielkiej Brytanii i podziale na szkoly meskie, żenskie.\
+2) Wyciagnac z pliku tekstowego informacje, ktore szkoły z Wielkiej Brytanii są w którym sub-panstwie.\
+3) Porównać z innymi szkolamy w ramach sub-panstwa, z państwami o podobnym rozwoju.\
+
+
+Adas:\
+1) Poszukać informacjii o sredniej temperaturze w danym panstwie w roku $2015$. Zbadać wpływ temperatury na wyniki i inne dane.\
+
+
+
+
+
+
+
 
