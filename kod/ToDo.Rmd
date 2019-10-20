@@ -43,7 +43,8 @@ Ciekawe:\
 11. Opinia o zanieczyszczeniu srodowiska: `ST092Q01TA`\
 12. Zaciekawienie ucznia przedmiotem: `ST094Q01NA`\
 13. Cel uczenia sie: `ST113Q01TA`\
-14. 
+14. Jest tam gdzieś pytanie, ile czasu spędzasz na nauce poza szkola.\
+15. 
 
 
 Problemy:\
