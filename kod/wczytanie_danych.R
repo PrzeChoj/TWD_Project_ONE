@@ -3,12 +3,11 @@
 # UWAGA! Nie wczytywac ich calych na raz, dane sa zbyt duze!(5GB)
 
 # funkcja read_sas z pakietu heaven dziala duzo szybciej niz funkcja sas7bdat z pakietu sas7bdat
-install.packages("haven")
 library("haven")
 
 # funkcja do wszystkich danych
 create_data_from_sas_format <- function(dictionary, file) {
-  dane.dic <- file.path(getwd(), "Dane")
+  dane.dic <- file.path(getwd(), "dane")
   
   stopifnot(is.character(dictionary), is.character(file))
   
@@ -36,13 +35,17 @@ tmp3 <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_STU_QQQ", "cy6_ms_cmb_
 tmp_maly <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_STU_QQQ", "cy6_ms_cmb_stu_qq2.sas7bdat") # 519334x21
 tmp_duzy <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_STU_QQQ", "cy6_ms_cmb_stu_qqq.sas7bdat") # 519334x921
 
+rodzice <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_STU_QQQ", "cy6_ms_cmb_stu_qqq.sas7bdat")
+
+
+
 paulinowy <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS_CMB_SCH_QQQ.sas7bdat.format.sas")
 
 
 
 
 
-
+dupa <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_SCH_QQQ", "cy6_ms_cmb_sch_qqq.sas7bdat")
 
 
 

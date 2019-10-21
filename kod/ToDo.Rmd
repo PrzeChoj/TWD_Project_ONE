@@ -29,7 +29,7 @@ Zrobione:\
 2. A~ Tabelki typu `powtarzanie_klasy` informujace o tym w jakich panstwach i jak bardzo uczniowie powtarzali klasy. Najwazniejsza: `powtarzanie_klasy_merged`.
 3. A~ Wykres `posiadanie biurka`. Oczywiście do przyszlej poprawy.
 
-Ciekawe:\
+Ciekawe o uczniach:\
 1. Posiadanie własnego pokoju do nauki/biórka: `CY6_QST_MS_STQ_PBA_Final`: `ST011Q01TA`\
 2. Jak duzo maja samochodow, instrumentow muzycznych?: `ST012Q02TA`\
 3. Jak duzo ksiazek?: `ST013Q01TA`\
@@ -44,8 +44,19 @@ Ciekawe:\
 12. Zaciekawienie ucznia przedmiotem: `ST094Q01NA`\
 13. Cel uczenia sie: `ST113Q01TA`\
 14. Jest tam gdzieś pytanie, ile czasu spędzasz na nauce poza szkola.\
-15. 
+15. \
 
+Ciekawe o rodzicach: `cy6_ms_cmb_stu_qqq.sas7bdat`\
+1. Dziecko oglada science on TV: `PA002Q01TA`\
+2. Czyta science fiction: `PA002Q03TA`\
+3. Chodzi na koła naukowe: `PA002Q05TA`\
+4. Naprawia zepsute rzeczy: `PA002Q08NA`\
+5. Rodzice rozmawiaja z dzieckiem o szkole: `PA003Q01TA`\
+6. 
+7. 
+8. 
+9. 
+10. 
 
 Problemy:\
 1. \
