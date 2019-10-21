@@ -59,20 +59,29 @@ tmp <- Student[, .(CNTSCHID, CNTSTUID, ST004D01T, STRATUM, PV1MATH, PV1READ, PV1
 
 setkey(tmp, STRATUM)
 setkey(GBR_schools, STRATUM)
-tmp[GBR_schools] -> GBR_results
+GBR_results <- tmp[GBR_schools]
+GBR_results <- GBR_results[which(!(GBR_results$CNTSCHID %>% is.na)), ]
 
+
+
+
+
+
+# obrazki
 Results_in_mixed_school <- GBR_results[
                                        !is.na(CNTSCHID) & sex=="mixed",
                                        .(Mean_math = mean(PV1MATH), Mean_read = mean(PV1READ), Mean_science = mean(PV1SCIE)),
                                        ST004D01T
                                        ]
-ifelse(Results_in_mixed_school$ST004D01T == 1, "female", "male")  -> Results_in_mixed_school$ST004D01T
+Results_in_mixed_school$ST004D01T <- ifelse(Results_in_mixed_school$ST004D01T == 1, "female", "male")
 
 tmp_schools <- Results_in_mixed_school %>% t()
 cbind(rownames(tmp_schools), tmp_schools) -> tmp_schools
 rownames(tmp_schools) <- NULL
 colnames(tmp_schools) <- c("results", "female", "male")
 tmp_schools <- tmp_schools[-1, ] %>% as.data.table()
+tmp_schools$female <- tmp_schools$female %>% as.integer()
+tmp_schools$male <- tmp_schools$male %>% as.integer()
 
 #wykres do powyzszych wynikow 
 #zmienic kropki na cos innego TODO
@@ -85,13 +94,19 @@ ggplot(Results_in_mixed_school) +
        x = NULL)
 
 #nie dala, poprawic kolory i zmienic os Y TODO
+przesuniecie <- function(x){
+  # przesuwa wektor, aby muc latwiej zauwarzyc ruznice w danych
+  x-450
+}
 ggplot(tmp_schools) +
-  geom_bar(aes(y = female, x = results, fill=c("Female", "Female", "Female")), stat= "identity", alpha = 0.6, width = 0.5) +
-  geom_bar(aes(y = male, x = results, fill=c("Male", "Male", "Male")), stat = "identity", alpha = 0.4, width = 0.5) +
-  labs(title = "Średnie wyniki testów wsród szkół mieszanych z podziałem na płeć uczniów.",
+  geom_bar(aes(y = przesuniecie(female), x = results, fill=c("Female", "Female", "Female")), stat= "identity", alpha = 0.6, width = 0.5) +
+  geom_bar(aes(y = przesuniecie(male), x = results, fill=c("Male", "Male", "Male")), stat = "identity", alpha = 0.4, width = 0.5) +
+  labs(subtitle = "Średnie wyniki wsród szkół mieszanych. Podział na płeć.",
        y = NULL,
        x = NULL) +
-  theme(legend.title=element_blank())
+  theme(legend.title=element_blank()) +
+  scale_y_continuous(breaks=c(0, 25, 30, 37, 45, 49), labels=c("450", "475", "480", "487", "495", "499")) +
+  scale_x_discrete(labels=c("MATH", "READ", "SCIENCE"))
   
 #specjalnie dla Adasia sprawdzenie czy sa jakies kobiety w meskiej szkole i odwrotnie
 GBR_results[!is.na(CNTSCHID), ][, .N, .(sex, ST004D01T)][order(sex)] #4247 kobiety i 4519 mezczyzn w szkolach mieszanych
@@ -111,22 +126,27 @@ Results_region_and_sex <- GBR_results[
 Results_sex <- GBR_results[
                            !is.na(CNTSCHID), .(Mean_math = mean(PV1MATH), Mean_read = mean(PV1READ), Mean_science = mean(PV1SCIE)), sex
                            ]
+
+# dostosowanie tej gownianej tableki do dobrej formy
+tmp <- matrix(nrow=9, ncol=3)
+colnames(tmp) <- c("sex", "Type", "Score")
+tmp <- tbl_df(tmp)
+tmp$sex <- rep(Results_sex$sex, length=3)
+tmp$Type <- rep(c("SCIENCE", "READ", "MATH"), each=3)
+tmp$Score <- c(Results_sex$Mean_science, Results_sex$Mean_read, Results_sex$Mean_math)
+
 #wykres wynikow
-# dodac legende TODO
-ggplot(Results_sex) +
-  geom_point(aes(x = sex, y=Mean_math), stat = "identity", color="red") +
-  geom_point(aes(x = sex, y=Mean_read), stat = "identity", color="green") +
-  geom_point(aes(x = sex, y=Mean_science), stat = "identity", color="blue") +
+ggplot(tmp, aes(x=sex, color=Type, y=Score)) +
+  geom_point(size=8) +
   labs(title = "Średnie wyniki testów wsród roznych typow szkół.",
        y = NULL,
        x = NULL)
 
 
-#zrobic sredni wynik ze wszystkich testow TODO
-ggplot(Results_region_and_sex, aes(colour = sex)) +
-  geom_point(aes(x = region, y=Mean_math), stat = "identity") +
-  geom_point(aes(x = region, y=Mean_read), stat = "identity") +
-  geom_point(aes(x = region, y=Mean_science), stat = "identity") +
+tmp <- tbl_df(Results_region_and_sex)
+tmp <- tmp %>% mutate(MEAN = (Mean_math + Mean_read + Mean_science)/3) %>% select(region, sex, MEAN)
+ggplot(tmp, aes(colour = sex)) +
+  geom_point(aes(x = region, y=MEAN), stat = "identity", size=8, position = position_jitter(width = 0.2)) +
   labs(title = "Średnie wyniki testów wsród szkół w zależności od regionu.",
        y = NULL,
        x = NULL) + 

@@ -87,9 +87,9 @@ points(56, tmp[56, 1], pch=16, col="RED") # Polska
 
 
 
-
-
-
+# tworzenie tabelki z wielka brytania(potrzebne wykonanie skryptu BGR_schools.R)
+rodzice_GBR <- rodzice %>% filter(CNT=="GBR")
+GBR <- left_join(x=rodzice_GBR, y=GBR_results, by="CNTSCHID")
 
 
 
