@@ -66,7 +66,6 @@ GBR_results <- GBR_results[which(!(GBR_results$CNTSCHID %>% is.na)), ]
 
 
 
-
 # obrazki
 Results_in_mixed_school <- GBR_results[
                                        !is.na(CNTSCHID) & sex=="mixed",
@@ -84,11 +83,11 @@ tmp_schools$female <- tmp_schools$female %>% as.integer()
 tmp_schools$male <- tmp_schools$male %>% as.integer()
 
 #wykres do powyzszych wynikow 
-#zmienic kropki na cos innego TODO
+#zrobic legende TODO
 ggplot(Results_in_mixed_school) +
-  geom_point(aes(x = ST004D01T, y=Mean_math), stat = "identity", color="red") +
-  geom_point(aes(x = ST004D01T, y=Mean_read), stat = "identity", color="green") +
-  geom_point(aes(x = ST004D01T, y=Mean_science), stat = "identity", color="blue") +
+  geom_point(aes(x = ST004D01T, y=Mean_math), stat = "identity", color="pink", size=8) +
+  geom_point(aes(x = ST004D01T, y=Mean_read), stat = "identity", color="navyblue", size=8) +
+  geom_point(aes(x = ST004D01T, y=Mean_science), stat = "identity", color="orange", size=8) +
   labs(title = "Średnie wyniki testów wsród szkół mieszanych z podziałem na płeć uczniów.",
        y = NULL,
        x = NULL)
@@ -154,9 +153,120 @@ ggplot(tmp, aes(colour = sex)) +
 
 ### DALEJ NIC NIE ZOSTAŁO JESZCZE ZROBIONE
 
+tmp_math <- GBR_results[order(PV1MATH, decreasing = TRUE)][1:10,]
+tmp_read <- GBR_results[order(PV1READ, decreasing = TRUE)][1:10,]
+tmp_science <- GBR_results[order(PV1SCIE, decreasing = TRUE)][1:10,]
+
+setkey(tmp_math, CNTSTUID)
+setkey(tmp_read, CNTSTUID)
+setkey(tmp_science, CNTSTUID)
+tmp_math[tmp_read, nomatch=0][tmp_science, nomatch = 0][, 1:11]
+Student[CNTSTUID==82606747, ][, .(ST123Q01NA, ST123Q02NA, ST123Q03NA, ST123Q04NA)] #ciekawe - najlepsza dziewczyna ma wsparcie rodzicow
+                                                                                   #czy wsparcie rodzicow wplywa na oceny?
+
+setkey(Student, CNTSTUID)
+setkey(GBR_results, CNTSTUID)
+parents_influence <- GBR_results[Student[, .(CNTSTUID, ST123Q01NA, ST123Q02NA, ST123Q03NA, ST123Q04NA)], nomatch=0]
+
+parents_influence %>% mutate(MEAN_RATE = (PV1MATH + PV1READ + PV1SCIE)/3) -> parents_influence
+parents_influence %>% mutate(MEAN_INFLU = (ST123Q01NA + ST123Q02NA + ST123Q03NA + ST123Q04NA)/4) -> parents_influence
+parents_influence %>% as.data.table() -> parents_influence
+
+ggplot(parents_influence, aes(x = MEAN_INFLU, y = MEAN_RATE)) +
+  geom_point(aes(x = MEAN_INFLU, y = MEAN_RATE), position = position_jitter(width = 0.3), colour = "#008762") +
+  facet_wrap(~ sex) +
+  labs(title = "Wpływ zainteresowania rodziców na wyniki w nauce.",
+       x = "Średni wynik ucznia",
+       y = "Wpływ rodzica na wyniki dziecka") +
+  scale_x_continuous(breaks = c(1,2,3,4), labels = c("VERY WEAK", "WEAK", "STRONG", "VERY STRONG"))
+#WNIOSEK - zainteresowanie rodzicow nie wplywa na wyniki uczniow - ale mozna zauwazyc ze rodzice prawie zawsze wspieraja swoje dzieci
+
 #wczytujemy plik z danymi z kwestionariusza o szkole
 School <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_SCH_QQQ", "cy6_ms_cmb_sch_qqq.sas7bdat") %>% as.data.table()
 
-setkey(School, STRATUM)
-setkey(GBR_schools, STRATUM)
-School[GBR_schools] -> y
+# Sprawdzamy czy typ szkoly publiczna/prywatna wplywa na wyniki w nauce
+setkey(School, CNTSCHID)
+setkey(GBR_results, CNTSCHID)
+# xDDDDDDD w Walii wszystkie szkoly meskie sa publiczne a damskie prywatne 
+GBR_results[School[,  .(CNTSCHID, SC013Q01TA)], nomatch=0][!is.na(SC013Q01TA),.(MEAN = mean(SC013Q01TA)), .(sex, region)][order(region)]
+
+GBR_results[School[,  .(CNTSCHID, SC013Q01TA)], nomatch=0] %>% mutate(MEAN_RATE = (PV1MATH + PV1READ + PV1SCIE)/3) %>% as.data.table() -> type_schools
+type_schools[!is.na(SC013Q01TA), ] -> type_schools
+ifelse(type_schools$SC013Q01TA==1, "public", "private") -> type_schools$SC013Q01TA 
+
+ggplot(type_schools) +
+  geom_violin(aes(x = sex, y = MEAN_RATE)) +
+  facet_wrap(~region + SC013Q01TA) +
+  labs(title = "Średnie wyniki uczniow w zalezności od regionu i typu szkoly")
+# WNIOSEK - w szkolach prywatnych wyniki sa troche lepsze niz w publicznych - u kobiet jest to bardziej zauwazalne, poprawia sie srednio o 100-200 pkt
+#do wykresu wyzej mozna zrobic tez boxplota
+
+#czy typ szkoly wplywa na zaangazowanie rodzicow?
+setkey(School, CNTSCHID)
+setkey(parents_influence, CNTSCHID)
+parents_influence[School[, .(CNTSCHID,SC013Q01TA)], nomatch=0][!is.na(SC013Q01TA) & !is.na(MEAN_INFLU), ] -> parents_and_type_school
+ifelse(parents_and_type_school$SC013Q01TA==1, "public", "private") -> parents_and_type_school$SC013Q01TA 
+
+#wykresik do tematu z powyzszego komentarza
+ggplot(parents_and_type_school) +
+  geom_violin(aes(x=MEAN_RATE, y=MEAN_INFLU, fill = SC013Q01TA), alpha= .4) +
+  facet_wrap(~ sex) +
+  labs(title = "Zaangazowanie rodziców a wplyw na wyniki w zaleznosci od typu szkoly",
+       x = "Średni wynik",
+       y = "Zaangażowanie rodzica w życie dziecka") +
+  scale_y_continuous(labels = c("VERY WEAK", "WEAK", "STRONG", "VERY STRONG")) +
+  scale_x_continuous(breaks = seq(200, 800, 100)) +
+  scale_fill_discrete(name = "Typ szkoły")
+#wniosek - w szkolach prywatnych rodzice sie troche bardziej interesuja dziecmi, ale tylko troszke - trudno zauwazyc
+#dodatkowo widac tez wyniki w zaleznosci od szkoly prywatnej/publicznej, czyli ze wyniki sa troche lepsze w szkolach prywatnych meskich i zenskich
+
+
+### PODSUMOWANIE - do tej pory mamy 7 slabych wykresow ktore tak naprawde nic nie mowia
+
+#sprawdzamy ilosc szkol w miastach o roznej ilosci populacji
+#ten wykres nic nie pokazuje, wiec nie byl poprawiany
+setkey(School, CNTSCHID)
+setkey(parents_and_type_school, CNTSCHID)
+School[!is.na(SC001Q01TA), .(CNTSCHID, SC001Q01TA)][parents_and_type_school, nomatch=0] -> tmp
+
+ggplot(tmp) +
+  geom_point(aes(x = sex, y = SC001Q01TA)) +
+  facet_wrap(~ SC013Q01TA) +
+  labs(title = "Rozmiar miejscowosci w jakiej jest szkola a typ szkoly") +
+  scale_y_continuous( breaks = seq(1,5,1), labels = c("fewer than 3 000", "3 000 to about 15 000", "15 000 to about 100 000",
+                                                      "100 000 to about 1 000 000", "with over 1 000 000"))
+
+#sprobujmy zrobic to samo ale w tabeli zliczajac ilosc szkol w roznych wioskach
+
+# ifelse(tmp$SC001Q01TA==1, "fewer than 3 000", tmp$SC001Q01TA) -> tmp$SC001Q01TA
+# ifelse(tmp$SC001Q01TA==2, "3 000 to about 15 000", tmp$SC001Q01TA) -> tmp$SC001Q01TA
+# ifelse(tmp$SC001Q01TA==3, "15 000 to about 100 000", tmp$SC001Q01TA) -> tmp$SC001Q01TA
+# ifelse(tmp$SC001Q01TA==4, "100 000 to about 1 000 000", tmp$SC001Q01TA) -> tmp$SC001Q01TA
+# ifelse(tmp$SC001Q01TA==5, "with over 1 000 000", tmp$SC001Q01TA) -> tmp$SC001Q01TA
+
+a <- tmp[, .(COUNT = .N), .(SC013Q01TA, SC001Q01TA)][order(COUNT, decreasing = TRUE)] #najwiecej szkol publicznych w kazdej mozliwej kategorii miasta
+b <- tmp[, .(COUNT = .N), .(sex, SC001Q01TA)][order(COUNT, decreasing = TRUE)] #roznie, ale najwiecej szkol mieszanych
+
+#wykresiki
+ggplot(a, aes(x = SC001Q01TA, y = COUNT, fill = SC013Q01TA)) +
+  geom_bar(stat="identity", width = .6) +
+  labs(x = "Wielkosc miasta",
+       y = "Liczba szkol", 
+       title = "Liczba szkol w zaleznosci od wielkosci miasta") + 
+  scale_fill_discrete(name = "Typ szkoły") +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_x_continuous(breaks = seq(1,5,1), labels = c("fewer than 3 000", "3 000 to about 15 000", "15 000 to about 100 000",
+                                                      "100 000 to about 1 000 000", "with over 1 000 000"))
+#wniosek - najwiecej szkol i prywatnych i publicznych jest w miastach srednich 15 tys do 100 tys
+
+ggplot(b, aes(x = SC001Q01TA, y = COUNT, fill = sex)) +
+  geom_bar(stat="identity", width = .6, alpha=.7) +
+  labs(x = "Wielkosc miasta",
+       y = "Liczba szkol", 
+       title = "Liczba szkol w zaleznosci od wielkosci miasta") + 
+  scale_fill_discrete(name = "Typ szkoły") +
+  scale_fill_manual(values = c("pink", "royalblue4", "maroon3"))  +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_x_continuous( breaks = seq(1,5,1), labels = c("fewer than 3 000", "3 000 to about 15 000", "15 000 to about 100 000",
+                                                      "100 000 to about 1 000 000", "with over 1 000 000"))
+#wniosek - analogiczne jak wyzej
