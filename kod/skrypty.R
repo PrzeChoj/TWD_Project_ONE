@@ -45,6 +45,9 @@ procent_panstw <- function(dt){
 
 
 
-
+procent_sex <- function(nazwa){
+  dane <- duzy[!is.na(nazwa), c("sex", nazwa)]
+  procent_panstw(dane)
+}
 
 
