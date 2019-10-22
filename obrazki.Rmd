@@ -69,7 +69,7 @@ GBR_sex <- GBR$sex %>% as.character()
 dane <- cbind(GBR_sex, dane)
 colnames(dane) <- c("1", "dane")
 dane <- dane %>% tbl_df()
-dane
+
 dane2 <- dane[which(dane$dane=="2"),]
 dane3 <- dane[which(dane$dane=="3"),]
 dane4 <- dane[which(dane$dane=="4"),]
@@ -90,7 +90,7 @@ wynik[3,1] <- mean(dane4$`1`=="mixed")
 wynik[3,2] <- mean(dane4$`1`=="male")
 wynik[3,3] <- mean(dane4$`1`=="female")
 
-wynik
+
 wynik <- as.data.frame(wynik)
 wynik <- do_plota(wynik)
 
