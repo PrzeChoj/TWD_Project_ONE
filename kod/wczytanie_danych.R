@@ -44,7 +44,7 @@ paulinowy <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS
 
 # zapis GBR do csv'ki
 GBR.path <- file.path(getwd(), "dane", "GBR.csv")
-tmp <- GBR %>% select(CNT, CYC, sex, ST012Q01TA)
+# tmp <- GBR %>% select(CNT, CYC, sex, ST012Q01TA)
 write.csv(GBR, file=GBR.path, sep=";")
 
 
