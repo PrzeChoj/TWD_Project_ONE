@@ -3,9 +3,9 @@ title: "obrazki"
 author: "Przemysław Chojecki"
 date: "22 10 2019"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -48,14 +48,14 @@ rodzice <- as.data.frame(rodzice)
 rodzice <- do_plota(rodzice)
 rodzice$dane <- 100*rodzice$dane
 
-rodzice <- ggplot(data = rodzice, aes(x=wiersze, y=dane, fill=kolumny)) +
-  geom_bar(stat="identity") +
+levels(rodzice$kolumny) <- unique(rodzice$kolumny)[c(3, 1, 2)]
+
+ggplot(data = rodzice, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(aes(fill=factor(kolumny, levels(rodzice$kolumny))), stat="identity") +
   ggtitle("Jaki procent uczniow w specyficznych szkolach ma jakich rodzicow") +
   xlab("Rodzaje szkol") + ylab("Procent uczniow") +
-  scale_fill_discrete(name = "Liczba rodzicow jest Brytyjczykami") +
-  scale_x_discrete(labels=c("female", "male", "mixed"))
-
-rodzice
+  scale_fill_discrete(name = "Liczba rodzicow Brytyjczykow") +
+  scale_x_discrete(labels=c("damska", "meska", "mieszana"))
 ```
 
 
@@ -75,7 +75,7 @@ dane4 <- dane[which(dane$dane=="4"),]
 
 wynik <- matrix(nrow=3, ncol=3)
 rownames(wynik) <- c("obaj", "jeden rodzic", "zaden")
-colnames(wynik) <- c("mixed", "male", "female")
+colnames(wynik) <- c("mieszana", "meska", "damska")
 
 wynik[1,1] <- mean(dane2$`1`=="mixed")
 wynik[1,2] <- mean(dane2$`1`=="male")
@@ -96,8 +96,8 @@ wynik$dane <- 100*wynik$dane
 ggplot(data = wynik, aes(x=wiersze, y=dane, fill=kolumny)) +
   geom_bar(stat="identity") +
   ggtitle("Gdzie rodzice wysylaja swoje dzieci") +
-  xlab("Rodzaje szkol") + ylab("Procent uczniow") +
-  scale_fill_discrete(name = "Do jakiej szkoly wyslali dziecko") +
+  xlab("Liczba rodzicow Brytyjczykow") + ylab("Procent uczniow") +
+  scale_fill_discrete(name = "Rodzaje szkol") +
   scale_x_discrete(labels=c("jeden", "obaj", "zaden"))
 ```
 
@@ -109,36 +109,21 @@ tmp <- procent_sex("ST034Q02TA")
 tmp <- tmp[,c(3,2,1,4)]
 colnames(tmp) <- c("Bardzo sie zgadzam", "Zgadzam sie", "Nie zgadzam sie", "Bardzo sie nie zgadzam")
 tmp <- do_plota(tmp)
+
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
 ggplot(data = tmp, aes(x=wiersze, y=dane*100, fill=kolumny)) +
-  geom_bar(stat="identity") +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity") +
+  ggtitle("Latwo jest mi zawierac znajomosci") +
   xlab("Rodzaje szkol") + ylab("Procent uczniow") +
-  scale_fill_discrete(name = "Latwo jest mi zawierac znajomosci") +
-  scale_x_discrete(labels=c("jeden", "obaj", "zaden"))
-```
-
-
-### Czuje sie jak czesc szkoly\
-```{r czesc_szkoly, cache=TRUE, echo=FALSE, message=FALSE}
-tmp <- do_plota(procent_sex("ST034Q03TA"))
-ggplot(data = tmp, aes(x=wiersze, y=dane*100, fill=kolumny)) +
-  geom_bar(stat="identity") # molo widac
-```
-
-hfuiwehfweif\
-fwef\
-f\
-
-
-### Inni mnie lubia\
-```{r lubia_mnie, cache=TRUE, echo=FALSE, message=FALSE}
-tmp <- do_plota(procent_sex("ST034Q05TA"))
-ggplot(data = tmp, aes(x=wiersze, y=dane*100, fill=kolumny)) +
-  geom_bar(stat="identity")
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "meska", "mieszana"))
 ```
 
 
 
-### Sluchanie na zajeciach
+
+### Dziewczeta bardziej uwarzaja na zajeciach
 ```{r sluchanie_na_zajeciach, cache=TRUE, echo=FALSE, message=FALSE}
 library(dplyr)
 library(ggplot2)
@@ -149,11 +134,14 @@ colnames(tmp) <- c("Na kazdej lekcji", "Na wiekszosci lekcji", "Na kilku lekcjac
 tmp <- do_plota(tmp)
 tmp$dane <- 100*tmp$dane
 
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
 ggplot(data = tmp, aes(x=wiersze, y=dane, fill=kolumny)) +
-  geom_bar(stat="identity") +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity") +
   ggtitle("Jak czesto sie zdarza, ze uczniowie nie sluchaja") +
   xlab("Rodzaje szkol") + ylab("Procent uczniow") +
-  scale_fill_discrete(name = "")
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "meska", "mieszana"))
 ```
 
 
@@ -165,11 +153,14 @@ colnames(tmp) <- c("Na kazdej lekcji", "Na wiekszosci lekcji", "Na kilku lekcjac
 tmp <- do_plota(tmp)
 tmp$dane <- 100*tmp$dane
 
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
 ggplot(data = tmp, aes(x=wiersze, y=dane, fill=kolumny)) +
-  geom_bar(stat="identity") +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity") +
   ggtitle("Jak czesto sie zdarza, ze uczniowie rozrabiaja") +
   xlab("Rodzaje szkol") + ylab("Procent uczniow") +
-  scale_fill_discrete(name = "")
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "meska", "mieszana"))
 ```
 
 
@@ -185,38 +176,37 @@ colnames(tmp) <- c("Na kazdej lekcji", "Na wiekszosci lekcji", "Na kilku lekcjac
 tmp <- do_plota(tmp)
 tmp$dane <- 100*tmp$dane
 
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
 ggplot(data = tmp, aes(x=wiersze, y=dane, fill=kolumny)) +
-  geom_bar(stat="identity") +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity") +
   ggtitle("Jak czesto uczniowie dyskutuja na temat zajec") +
   xlab("Rodzaje szkol") + ylab("Procent uczniow") +
-  scale_fill_discrete(name = "")
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "meska", "mieszana"))
 ```
 
 
 
-### Rozmawiaja na temat badania
-```{r rozmowy_o_badaniu, cache=TRUE, echo=FALSE, message=FALSE}
-tmp <- do_plota(procent_sex("ST098Q08NA"))
-ggplot(data = tmp, aes(x=wiersze, y=dane*100, fill=kolumny)) +
-  geom_bar(stat="identity")
-```
 
 
-
-### W szkolach mieszanych niechce sie uczniom powtarzac tego samego eksperumentu kilka razy. Moze szybko sie nudza?
+### W szkolach mieszanych niechce sie uczniom powtarzac tego samego eksperumentu kilka razy. Moze szybko sie niecierpliwia?
 ```{r powtarzanie_eksperymentu, cache=TRUE, echo=FALSE, message=FALSE}
-# TODO poprawic tykres. Zle permutuja sie kolejnosc. Bardzo rzuca sie w oczy
+# TODO poprawic wykres. Zle permutuja sie kolejnosc. Bardzo rzuca sie w oczy
 tmp <- procent_sex("ST131Q06NA")
 tmp <- tmp[, c(4, 3, 1, 2)]
 colnames(tmp) <- c("Bardzo sie nie zgadzam", "Nie zgadzam sie", "Zgadzam sie", "Bardzo sie zgadzam")
 tmp <- do_plota(tmp)
 tmp$dane <- 100*tmp$dane
 
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
 ggplot(data = tmp, aes(x=wiersze, y=dane, fill=kolumny)) +
-  geom_bar(stat="identity") +
-  ggtitle("Dobrze jest wiele razy powtarzac eksperyment, aby upewnic sie co do wynikow") +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity") +
+  ggtitle("Dobrze jest wiele razy powtarzac eksperyment, aby sie upewnic") +
   xlab("Rodzaje szkol") + ylab("Procent uczniow") +
-  scale_fill_discrete(name = "")
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "meska", "mieszana"))
 ```
 
 
