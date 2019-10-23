@@ -72,7 +72,36 @@ GBR <- GBR %>% inner_join(map, by="fullregion")
 
 
 
+# obrazki
 
+# Ilosc deszczu a wyniki w nauce
+GBR_deszcz <- GBR %>% select(deszcz, rainregion, PV10MATH, PV10READ, PV10SCIE)
+GBR_deszcz$deszcz <- GBR_deszcz$deszcz %>% as.numeric()
+
+ggplot(data = GBR_deszcz, aes(x = deszcz, y = (PV10MATH + PV10READ + PV10SCIE)/3, shape=rainregion)) +
+  geom_point(alpha = 0.01, position = position_jitter(width = 50), aes(colour = rainregion)) +
+  geom_boxplot(aes(colour = "black"), outlier.color = NA) +
+  ggtitle("Ilosc deszczu a wyniki w nauce") +
+  xlab("Suma opadow w latach 2008-2014") + ylab("Sredni wynik z testu") +
+  scale_fill_discrete(name = "Region") +
+  theme(legend.position = "none")
+
+
+
+
+# Wyniki testow w zaleznosci od narodowosci rodzicow
+dane <- GBR$ST019BQ01T + GBR$ST019CQ01T
+dane <- cbind((GBR$PV10MATH+GBR$PV10READ+GBR$PV10SCIE)/3, dane)
+colnames(dane) <- c("wynikTEST", "Rodzice")
+dane <- dane %>% tbl_df() %>% filter(!is.na(Rodzice))
+dane$Rodzice <- ifelse(dane$Rodzice==2, "Brytyjczycy", ifelse(dane$Rodzice==3, "Jeden", "obaj zagramaniczni"))
+
+ggplot(data = dane, aes(x=Rodzice, y=wynikTEST)) +
+  geom_point(alpha = 0.01, position = position_jitter(width = 0.4), aes(colour = Rodzice)) +
+  geom_boxplot(aes(colour = "black"), outlier.color = NA) +
+  ggtitle("Wyniki testow w zaleznosci od narodowosci rodzicow") +
+  xlab("Narodowosc rodzicow") + ylab("Sredni wynik z testu") +
+  theme(legend.position = "none")
 
 
 
