@@ -42,10 +42,12 @@ rodzice <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_STU_QQQ", "cy6_ms_c
 paulinowy <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS_CMB_SCH_QQQ.sas7bdat.format.sas")
 
 
+# zapis GBR do csv'ki
+GBR.path <- file.path(getwd(), "dane", "GBR.csv")
+tmp <- GBR %>% select(CNT, CYC, sex, ST012Q01TA)
+write.csv(GBR, file=GBR.path, sep=";")
 
 
-
-dupa <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_SCH_QQQ", "cy6_ms_cmb_sch_qqq.sas7bdat")
 
 
 

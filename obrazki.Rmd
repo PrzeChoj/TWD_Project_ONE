@@ -1,0 +1,141 @@
+---
+title: "obrazki"
+author: "Przemysław Chojecki"
+date: "22 10 2019"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Tutaj będą obrazki `^^`\
+
+
+```{r setUp, cache=TRUE, echo=FALSE, message=FALSE}
+library(dplyr)
+library(data.table)
+library(stringi)
+library(ggplot2)
+library(haven)
+
+source(file.path(getwd(), "kod", "skrypty.R"))
+```
+
+```{r wczytanieGBR, cache=TRUE, echo=FALSE, message=FALSE}
+GBR.path <- file.path(getwd(), "dane", "GBR.csv")
+GBR <- read.csv(GBR.path)
+```
+
+
+
+
+```{r rodziceBrytole, cache=TRUE, echo=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+
+# w szkolach jaki procent uczniow jest brytyjczykami
+dane <- GBR$ST019BQ01T + GBR$ST019CQ01T
+dane <- cbind(GBR$sex, dane)
+colnames(dane) <- c("1", "dane")
+dane <- dane %>% tbl_df()
+rodzice <- procent_panstw(dane)
+colnames(rodzice) <- c("jeden", "obaj", "zaden") # sa brytyjczykami
+rodzice <- as.data.frame(rodzice)
+
+rodzice <- do_plota(rodzice)
+# TODO zmienic na procent
+
+rodzice <- ggplot(data = rodzice, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(stat="identity") +
+  ggtitle("Jaki procent uczniow w specyficznych szkolach ma jakich rodzicow") +
+  xlab("Rodzaje szkol") + ylab("Procent uczniow") +
+  scale_fill_discrete(name = "Liczba rodzicow jest Brytyjczykami") +
+  scale_x_discrete(labels=c("female", "male", "mixed"))
+
+rodzice
+```
+
+
+```{r rodziceBrytole2, cache=FALSE, echo=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+# do jakich szkol wysylaja swoich dzieci w zaleznosci od tego, ile z rodzicow jest Brytyjczykami
+dane <- GBR$ST019BQ01T + GBR$ST019CQ01T
+GBR_sex <- GBR$sex %>% as.character()
+dane <- cbind(GBR_sex, dane)
+colnames(dane) <- c("1", "dane")
+dane <- dane %>% tbl_df()
+
+dane2 <- dane[which(dane$dane=="2"),]
+dane3 <- dane[which(dane$dane=="3"),]
+dane4 <- dane[which(dane$dane=="4"),]
+
+wynik <- matrix(nrow=3, ncol=3)
+rownames(wynik) <- c("obaj", "jeden rodzic", "zaden")
+colnames(wynik) <- c("mixed", "male", "female")
+
+wynik[1,1] <- mean(dane2$`1`=="mixed")
+wynik[1,2] <- mean(dane2$`1`=="male")
+wynik[1,3] <- mean(dane2$`1`=="female")
+
+wynik[2,1] <- mean(dane3$`1`=="mixed")
+wynik[2,2] <- mean(dane3$`1`=="male")
+wynik[2,3] <- mean(dane3$`1`=="female")
+
+wynik[3,1] <- mean(dane4$`1`=="mixed")
+wynik[3,2] <- mean(dane4$`1`=="male")
+wynik[3,3] <- mean(dane4$`1`=="female")
+
+
+wynik <- as.data.frame(wynik)
+wynik <- do_plota(wynik)
+
+ggplot(data = wynik, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(stat="identity") +
+  ggtitle("Gdzie rodzice wysylaja swoje dzieci") +
+  xlab("Rodzaje szkol") + ylab("Procent uczniow") +
+  scale_fill_discrete(name = "Do jakiej szkoly wyslali dziecko") +
+  scale_x_discrete(labels=c("jeden", "obaj", "zaden"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

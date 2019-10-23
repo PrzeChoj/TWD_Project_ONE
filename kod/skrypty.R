@@ -45,6 +45,59 @@ procent_panstw <- function(dt){
 
 
 
+procent_sex <- function(nazwa){
+  # potrzebuje ramki GBR
+  dane <- GBR[!is.na(nazwa), c("sex", nazwa)]
+  procent_panstw(dane)
+}
+
+
+
+
+do_plota <- function(dt, kolumny=TRUE){
+  # funkcja przyjmuje macierz wygenerowana przez procent_panstw i przetabia ja
+    # na dobra do wrzucenia do ggplota
+  nazwy_col <- colnames(dt)
+  nazwy_row <- rownames(dt)
+  wynik <- matrix(ncol = 3, nrow = length(nazwy_row) * length(nazwy_col))
+  
+  if(kolumny){
+    wynik[,1] <- rep(nazwy_col, each = length(nazwy_row))
+    wynik[,2] <- rep(nazwy_row, times = length(nazwy_col))
+    colnames(wynik) <- c("kolumny", "wiersze", "dane")
+    wynik <- tbl_df(wynik)
+    
+    # petla jest OK, bo to bardzo mala ramka zawsze
+    for(i in 1:length(nazwy_col)){
+      for(j in 1:length(nazwy_row)){
+        wynik[(i-1)*length(nazwy_row)+j,3] <- dt[j,i] %>% substr(1, 5) # tylko 3 cyfry, bo i tak to jest procent, to male roznice
+      }
+    }
+  }
+  if(!kolumny){
+    wynik[,1] <- rep(nazwy_row, each = length(nazwy_col))
+    wynik[,2] <- rep(nazwy_col, times = length(nazwy_row))
+    colnames(wynik) <- c("wiersze", "kolumny", "dane")
+    wynik <- tbl_df(wynik)
+    
+    # petla jest OK, bo to bardzo mala ramka zawsze
+    for(i in 1:length(nazwy_row)){
+      for(j in 1:length(nazwy_col)){
+        wynik[(i-1)*length(nazwy_col)+j,3] <- dt[i,j] %>% substr(1, 5) # tylko 3 cyfry, bo i tak to jest procent, to male roznice
+      }
+    }
+  }
+  
+  wynik$dane <- wynik$dane %>% as.numeric()
+  
+  wynik
+}
+
+
+
+
+
+
 
 
 
