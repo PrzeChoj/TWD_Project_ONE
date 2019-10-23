@@ -21,7 +21,7 @@ file <- file.path("Dane" ,"PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS_CMB_SCH_QQQ.sa
 first_line <- grep("value \\$STRATUM", readLines(file))
 #szukamy konca wczytywania - w pliku z oznaczeniami koniec kolumny oznaczany jest przez ";"
 tmp <- grep(";", readLines(file))
-end_line <- tmp[tmp >801] #to jest nr wiersza posiadajacy ";" po kolumnie statum
+end_line <- tmp[tmp > first_line] #to jest nr wiersza posiadajacy ";" po kolumnie statum
 #wczytanie oznaczen
 Labels <- read.table(file,sep = "=", skip=first_line,nrows=(end_line[1]-first_line-1), stringsAsFactors = FALSE) %>% as.data.table()
 colnames(Labels) <- c("STRATUM", "Label")

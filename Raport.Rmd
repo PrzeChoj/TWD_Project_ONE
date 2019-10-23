@@ -1,0 +1,460 @@
+---
+title: "Analiza wyników PISA w UK"
+author: "Paulina Przybyłek & Przemysław Chojecki"
+date: "23 października 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE, echo=FALSE, cache=TRUE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(data.table)
+library(stringi)
+library(ggplot2)
+library(haven)
+library(ggpubr)
+
+```
+
+```{r data, message=FALSE, cache=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+# funkcja do wszystkich danych
+create_data_from_sas_format <- function(dictionary, file) {
+  dane.dic <- file.path(getwd(), "dane")
+  
+  stopifnot(is.character(dictionary), is.character(file))
+  
+  path <- file.path(dane.dic, dictionary, file)
+  new_data <- read_sas(path)
+  new_data
+}
+#wczytujemy plik z danymi z kwestionariusza o szkole
+School <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_SCH_QQQ", "cy6_ms_cmb_sch_qqq.sas7bdat") %>% as.data.table()
+#wczytujemy plik z danymi z kwestionariusza o uczniach
+Student <- read.csv(file.path(getwd(), "dane", "Student.csv")) %>% as.data.table()
+```
+
+## Wielka Brytania na tle innych państw
+
+Spojrzenie na Wielką Brytanię poprzez porównanie z państawami Europy [wykres 1], a następnie z państawami uznanymi za takie, które mają najlepszy system edukacji [wykres 2] ( do analizy wykorzystano 18 najlepszych państw wedle rankingu). 
+
+
+```{r dependson=data, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+#sciezka do pliku 
+file <- file.path("dane" ,"PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS_CMB_SCH_QQQ.sas7bdat.format.sas")
+#poczatek wczytywania danych - od tego nr wiersza zaczyna sie kolumna CNT
+first_line <- grep("value \\$CNT", readLines(file))
+#szukamy konca wczytywania - w pliku z oznaczeniami koniec kolumny oznaczany jest przez ";"
+tmp <- grep(";", readLines(file))
+end_line <- tmp[tmp > first_line] #to jest nr wiersza posiadajacy ";" po kolumnie statum
+#wczytanie oznaczen
+Labels <- read.table(file,sep = "=", skip=first_line,nrows=(end_line[1]-first_line-1), stringsAsFactors = FALSE) %>% as.data.table()
+colnames(Labels) <- c("CNT", "Label")
+Labels$CNT <- Labels$CNT %>% substr(1,3)
+
+#nazwy panstw takie jak w DF Labels i tylko te panstwa ktore sa w DF Labels
+europa <- c(" Albania", " Austria", " Belgium", " Bulgaria", " Croatia", " Cyprus", " Czech Republic", " Denmark",
+            " Estonia", " Finland", " France" ," Georgia", " Germany", " Greece", " Hungary", " Iceland", " Ireland", 
+            " Italy", " Kazakhstan", " Latvia", " Lithuania", " Luxembourg"," Malta", " Moldova", " Montenegro",
+            " Netherlands", " Norway", " Poland", " Portugal", " Romania", " Russian Federation", " Slovak Republic", 
+            " Slovenia", " Spain", " Sweden", " Switzerland", " Turkey", " United Kingdom") %>% as.data.table()
+
+setkey(Labels, Label)
+setkey(europa, .)
+Labels[europa, nomatch = 0] -> Labels2
+
+Europa_Results <- Student[
+                          , .(CNT, PV1MATH, PV1READ, PV1SCIE)
+                          ][
+                            , .(MEAN = (PV1MATH+PV1READ+PV1SCIE)/3), CNT
+                          ][
+                            , .(MEDIAN = median(MEAN), MAX = max(MEAN), MIN= min(MEAN)), CNT
+                            ]
+
+setkey(Europa_Results, CNT)
+setkey(Labels2, CNT)
+Europa_Results <- Europa_Results[Labels2, nomatch=0][order(MEDIAN)]
+
+cbind(Europa_Results[, .(MEDIAN, Label)], rep("median", length(Europa_Results$MEDIAN))) -> A
+cbind(Europa_Results[, .(MAX, Label)], rep("max", length(Europa_Results$MEDIAN))) -> B
+cbind(Europa_Results[, .(MIN, Label)], rep("min", length(Europa_Results$MEDIAN))) -> C
+rbindlist(list(A, B, C)) -> Europa
+
+Europa[order(MEDIAN, decreasing = TRUE)] -> Europa
+
+ggplot(Europa) +
+  geom_point(aes(reorder(Label, MEDIAN), MEDIAN, colour = V2), stat = "identity") +
+  theme_bw()+
+  coord_flip() +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 850)) +
+  labs(x = NULL,
+        y = "Średnie wyniki w państwie z testów PISA",
+        title = "Porównanie wyników państw z Europy",
+       color = "Wynik testu") +
+  geom_vline(xintercept = c(29,0), size = 1, 
+             color = "black", linetype = "dashed", alpha=0.5) +
+  geom_vline(xintercept = c(20,0), size = 1, 
+             color = "black", linetype = "dashed", alpha=0.25) +
+  annotate("point", x = 29, y = 813.8760, colour = "red", size=4) +
+  annotate("point", x = 29, y = 497.4420, colour = "green", size=4) +
+  annotate("point", x = 29, y = 175.8683, colour = "blue", size=4)
+
+
+#panstwa uznane w 2016 za panstwa o najlepszej struktorze szkolnictwa
+country <- c(" Finland", " Japan", " United Kingdom", " Denmark", " Russian Federation", " Norway", " Sweden", " Israel", " Hong Kong",
+            " Netherlands", " Belgium", " Germany", " China", " Singapore", " Portugal", " Hungary", " Estonia", " France", " United States") %>% as.data.table()
+setkey(Labels, Label)
+setkey(country, .)
+Labels[country, nomatch = 0] -> Labels3
+
+World_Results <- Student[
+  , .(CNT, PV1MATH, PV1READ, PV1SCIE)
+  ][
+    , .(MEAN = (PV1MATH+PV1READ+PV1SCIE)/3), CNT
+    ][
+      , .(MEDIAN = median(MEAN), MAX = max(MEAN), MIN= min(MEAN)), CNT
+      ]
+
+setkey(World_Results, CNT)
+setkey(Labels3, CNT)
+World_Results <- World_Results[Labels3, nomatch=0][order(MEDIAN)]
+
+cbind(World_Results[, .(MEDIAN, Label)], rep("median", length(World_Results$MEDIAN))) -> A
+cbind(World_Results[, .(MAX, Label)], rep("max", length(World_Results$MEDIAN))) -> B
+cbind(World_Results[, .(MIN, Label)], rep("min", length(World_Results$MEDIAN))) -> C
+rbindlist(list(A, B, C)) -> World
+
+World[order(Label, decreasing = TRUE)] -> World
+
+ggplot(World) +
+  geom_point(aes(Label, MEDIAN, colour = V2), stat = "identity") +
+  theme_bw()+
+  coord_flip() +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 850)) +
+  labs(x = NULL,
+       y = "Średnie wyniki w państwie z testów PISA",
+       title = "Państwa o najlepszych systemach szkolnictwa",
+       color = "Wynik testu") +
+  geom_vline(xintercept = c(17,0), size = 1, 
+             color = "black", linetype = "dashed", alpha=0.27) +
+  geom_hline(yintercept = c(0,497.4420), size = 1, 
+             color = "black", linetype = "dashed", alpha=0.27) +
+  annotate("point", x = 17, y = 813.8760, colour = "red", size=7) +
+  annotate("point", x = 17, y = 497.4420, colour = "green", size=7) +
+  annotate("point", x = 17, y = 175.8683, colour = "blue", size=7) +
+  theme(axis.text.y = element_text(size = c(rep(10, 16), 18, 10)))
+
+```
+
+
+## Wielka Brytania jako państwo z podziałem na płeć uczniów
+
+W Wielkiej Brytanii występują szkoły męskie, żeńskie i mieszane, które dodatkowo mają kolejny podział na typ (prywatne/publiczne, akademienie/niezależne/itp., itd.). Skupimy się najpierw na wynikach uczniów w tych szkołach.
+
+```{r d, dependson=data, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+#sciezka do tego pliku
+file <- file.path("dane" ,"PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS_CMB_SCH_QQQ.sas7bdat.format.sas")
+#poczatek wczytywania danych - od tego nr wiersza zaczyna sie kolumna STRATUM
+first_line <- grep("value \\$STRATUM", readLines(file))
+#szukamy konca wczytywania - w pliku z oznaczeniami koniec kolumny oznaczany jest przez ";"
+tmp <- grep(";", readLines(file))
+end_line <- tmp[tmp > first_line] #to jest nr wiersza posiadajacy ";" po kolumnie statum
+#wczytanie oznaczen
+Labels <- read.table(file,sep = "=", skip=first_line,nrows=(end_line[1]-first_line-1), stringsAsFactors = FALSE) %>% as.data.table()
+colnames(Labels) <- c("STRATUM", "Label")
+#interesuje nas tylko Wielka Brytania, czyli GBR1...
+GBR_schools <- Labels[grep("GBR1", Labels$STRATUM)]
+
+#kolumne Label chcemy podzielic na oddzielne kolumny o jednej informacji
+GBR_Info <- stri_split_fixed(GBR_schools$Label, ",") %>% as.data.table() %>% t()
+rownames(GBR_Info) <- NULL
+colnames(GBR_Info) <- c("region", "type", "subregion", "sex")
+#laczymy DF GBR_Info z GBR_schools - pozwywamy sie kolumny label na rzecz oddzielonych informacji
+GBR_schools <- cbind(GBR_schools[,1], GBR_Info)
+
+##obrobmy troche te DF
+#okazuje sie ze po id pojawia sie spacja, wiec usuwamy ja juz recznie
+GBR_schools$STRATUM <- GBR_schools$STRATUM %>% substr(1, 7)
+#z regionu obchodzi nas jedynie sama nazwa, wiec poprawiwamy to
+GBR_schools$region <- stri_extract_all(GBR_schools$region, regex="(?<=: ).*") %>% unlist()
+#w typie szkol przy plci obchodzi nas jedynie pierwsze slowo
+GBR_schools$sex <- stri_extract_first_words(GBR_schools$sex)
+
+tmp <- Student[, .(CNTSCHID, CNTSTUID, ST004D01T, STRATUM, PV1MATH, PV1READ, PV1SCIE)]
+
+setkey(tmp, STRATUM)
+setkey(GBR_schools, STRATUM)
+GBR_results <- tmp[GBR_schools]
+GBR_results <- GBR_results[which(!(GBR_results$CNTSCHID %>% is.na)), ]
+```
+
+```{r a ,dependson=(-1), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+
+#srednie wyniki w zaleznosci od rodzaju szkoly - plec
+Results_sex <- GBR_results[
+                           !is.na(CNTSCHID), .(Mean_math = mean(PV1MATH), Mean_read = mean(PV1READ), Mean_science = mean(PV1SCIE)), sex
+                           ]
+
+# dostosowanie tej gownianej tableki do dobrej formy
+tmp <- matrix(nrow=9, ncol=3)
+colnames(tmp) <- c("sex", "Type", "Score")
+tmp <- tbl_df(tmp)
+tmp$sex <- rep(Results_sex$sex, length=3)
+tmp$Type <- rep(c("SCIENCE", "READ", "MATH"), each=3)
+tmp$Score <- c(Results_sex$Mean_science, Results_sex$Mean_read, Results_sex$Mean_math)
+
+#wykres wynikow
+ggplot(tmp, aes(x=sex, color=Type, y=Score)) +
+  geom_point(size=8) +
+  labs(title = "Średnie wyniki testów szkół w Wielkiej Brytanii.",
+       y = "Wynik ucznia",
+       x = "Typ szkoły",
+       color = "Rodzaj testu") +
+  scale_x_discrete(labels = c("żeńska", "męska", "mieszana")) +
+  theme_bw() +
+  scale_color_manual(values = c("red3", "navy", "orange"))
+
+Results_in_mixed_school <- GBR_results[
+                                       !is.na(CNTSCHID) & sex=="mixed",
+                                       .(Mean_math = mean(PV1MATH), Mean_read = mean(PV1READ), Mean_science = mean(PV1SCIE)),
+                                       ST004D01T
+                                       ]
+
+Results_in_mixed_school$ST004D01T <- ifelse(Results_in_mixed_school$ST004D01T == 1, "female", "male")
+
+tmp_schools <- Results_in_mixed_school %>% t()
+cbind(rownames(tmp_schools), tmp_schools) -> tmp_schools
+rownames(tmp_schools) <- NULL
+colnames(tmp_schools) <- c("results", "female", "male")
+tmp_schools <- tmp_schools[-1, ] %>% as.data.table()
+tmp_schools$female <- tmp_schools$female %>% as.integer()
+tmp_schools$male <- tmp_schools$male %>% as.integer()
+
+#wykres do powyzszych wynikow 
+p <- ggplot(Results_in_mixed_school) +
+  geom_point(aes(x = ST004D01T, y=Mean_math), stat = "identity", color="red3", size=8) +
+  geom_point(aes(x = ST004D01T, y=Mean_read), stat = "identity", color="navyblue", size=8) +
+  geom_point(aes(x = ST004D01T, y=Mean_science), stat = "identity", color="orange", size=8) +
+  labs(y = "Wynik ucznia",
+       x = "Uczniowie") +
+  scale_x_discrete(labels=c("dziewczyny", "chłopcy")) +
+  annotate(geom="text", x=1, y=476.5, label="MATH") +
+  annotate(geom="text", x=2, y=489, label="MATH") +
+  annotate(geom="text", x=1, y=497.5, label="READ") +
+  annotate(geom="text", x=2, y=482, label="READ") +
+  annotate(geom="text", x=1, y=494, label="SCIENCE") +
+  annotate(geom="text", x=2, y=498.5, label="SCIENCE") +
+  theme_bw()
+  
+#title = "Średnie wyniki testów wsród szkół mieszanych z podziałem na płeć uczniów.",
+
+tmp_schools$roznica <- tmp_schools$female - tmp_schools$male
+
+q <- ggplot(tmp_schools) +
+  geom_bar(aes(x = results, y = roznica, fill = c("chłopcy", "dziewczyny", "chłopcy")), stat= "identity") +
+  scale_x_discrete(labels=c("MATH", "READ", "SCIENCE")) +
+  theme_bw() +
+  labs(x = "Oceniany przedmiot",
+       y = "Różnica w wynikach testów") +
+  scale_fill_manual(name="Uczniowie", values = c("green4", "purple3", "green4"))
+  
+#title = "Średnie wyniki wsród szkół mieszanych.",
+#subtitle = "Podział na płeć uczniów.",
+
+ggarrange(p, q,
+          ncol = 2, nrow = 1) %>% 
+  annotate_figure(top = text_grob("Średnie wyniki wsród szkół mieszanych. Podział na płeć uczniów.", face = "bold", size = 14))
+```
+
+
+A jak wyglądają wyniki uczniów, gdy weźmiemy pod uwagę regiony w Wielkiej Brytanii? Weźmy więc średnie wyniki studentów w każdym regionie UK, podzielone na typ szkoły (męska, żeńska, mieszana).
+
+```{r b ,dependson=(-2), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+#chcemy zbaczyc srednie wyniki w zaleznosci od szkol 
+Results_region_and_sex <- GBR_results[
+                                      !is.na(CNTSCHID),
+                                      .(Mean_math = mean(PV1MATH), Mean_read = mean(PV1READ), Mean_science = mean(PV1SCIE)),
+                                      .(region, sex)
+                                      ][
+                                        order(region)
+                                        ]
+
+tmp <- tbl_df(Results_region_and_sex)
+tmp <- tmp %>% mutate(MEAN = (Mean_math + Mean_read + Mean_science)/3) %>% select(region, sex, MEAN)
+
+ggplot(tmp, aes(colour = sex)) +
+  geom_point(aes(x = region, y=MEAN), stat = "identity", size=8, position = position_jitter(width = 0.2)) +
+  labs(title = "Średnie wyniki testów wsród szkół w zależności od regionu.",
+       y = NULL,
+       x = "Regiony Wielkiej Brytanii",
+       colour = "Typ szkoły") +
+  scale_colour_discrete(name="Typ szkoły", labels=c("żeńska", "męska", "mieszana")) +
+  scale_x_discrete(labels = c("Anglia", "Północna Irlandia", "Walia")) +
+  theme_bw()
+
+```
+
+Można zauważyć, że męskie szkoły w Walii mają najgorsze wyniki, natomiast żeńśkie najlepsze. Sprawdżmy jak wygląda rozkład szkół na regiony UK.
+
+```{r c ,dependson=(-3), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+# Sprawdzamy czy typ szkoly publiczna/prywatna wplywa na wyniki w nauce
+setkey(School, CNTSCHID)
+setkey(GBR_results, CNTSCHID)
+GBR_results[School[,  .(CNTSCHID, SC013Q01TA)], nomatch=0] %>% mutate(MEAN_RATE = (PV1MATH + PV1READ + PV1SCIE)/3) %>% as.data.table() -> type_schools
+type_schools[!is.na(SC013Q01TA), ] -> type_schools
+ifelse(type_schools$SC013Q01TA==1, "publiczna", "prywatna") -> type_schools$SC013Q01TA 
+ifelse(type_schools$region == "England", "Anglia", type_schools$region) -> type_schools$region
+ifelse(type_schools$region == "Wales", "Walia", type_schools$region) -> type_schools$region
+ifelse(type_schools$region == "Northern Ireland", "Północna Irlandia", type_schools$region) -> type_schools$region
+
+ggplot(type_schools, aes(x = sex, y = MEAN_RATE)) +
+  geom_violin(aes(color = sex), fill = "gray80", alpha = 0.5) +
+  geom_jitter(aes(color = sex), alpha = 0.25, 
+              position = position_jitter(width = 0.3)) +
+  facet_wrap(~region + SC013Q01TA, ncol=2, strip.position="right") +
+  labs(title = "Średnie wyniki uczniów w zależności od regionu i typu szkoły",
+       x = "Typ szkoły",
+       y = "Średnie wyniki ucznia w danej szkole") +
+  theme_bw() +
+  theme(legend.position = "none") + 
+  scale_x_discrete(labels= c("żeńska", "męska", "mieszana"))
+  
+```
+
+Jak zostało wspomniane na początku, w Wielkiej Brytanii państwa są podzielone też w zależności od tego skad pozyskują fundusze. Przyjrzyjmy się czy ma to wpływ na wyniki uczniów. Na wszelkich forach wspomina się, że akademie wspierane bezpośrednio przez państwo ma najlepsze wyniki, dlatego sprawdźmy czy tak jest.
+
+```{r f ,dependson=(-4), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+library(data.table)
+library(dplyr)
+
+ifelse(GBR_results$type == "maintained non-selective", "utrzymywana", GBR_results$type) -> GBR_results$type
+ifelse(GBR_results$type == "maintained selective", "utrzymywana", GBR_results$type) -> GBR_results$type
+ifelse(GBR_results$type == "Maintained", "utrzymywana", GBR_results$type) -> GBR_results$type
+ifelse(GBR_results$type== "academy", "akademia", GBR_results$type) -> GBR_results$type
+ifelse(GBR_results$type=="independent", "niezależna", GBR_results$type) -> GBR_results$type
+
+wynik <- GBR_results[, .(MEAN = (PV1MATH + PV1READ + PV1SCIE)/3), CNTSTUID]
+setkey(GBR_results, CNTSTUID)
+setkey(wynik, CNTSTUID)
+wynik <- wynik[GBR_results[, .(type,region, sex, CNTSTUID)], nomatch=0]
+
+ggplot(wynik, aes(x = type, y = MEAN, fill = sex)) +
+  geom_violin(aes(color = sex), fill = "gray80", alpha = 0.5) +
+  labs(x = "Typ szkół ze względu na fundusze/sponsorów",
+       y = "Średnie wyniki uczniów",
+       title = "Średnie wyniki uczniów dla szkół podzielonych na sposób uzyskiwania funduszy",
+       name = "Typ szkół") +
+  scale_fill_discrete(labels = c("żeńska", "męska", "mieszana")) +
+  theme_bw()
+
+```
+
+## Szkolnictwo w Wielkiej Brytanii
+
+Sprawdźmy teraz jak wygląda rozkład szkół w zależności od wielkości miasta, a także dzieląc to na szkoły prywatne i publiczne.
+
+```{r h ,dependson=(-5), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+setkey(Student, CNTSTUID)
+setkey(GBR_results, CNTSTUID)
+parents_influence <- GBR_results[Student[, .(CNTSTUID, ST123Q01NA, ST123Q02NA, ST123Q03NA, ST123Q04NA)], nomatch=0]
+
+parents_influence %>% mutate(MEAN_RATE = (PV1MATH + PV1READ + PV1SCIE)/3) -> parents_influence
+parents_influence %>% mutate(MEAN_INFLU = (ST123Q01NA + ST123Q02NA + ST123Q03NA + ST123Q04NA)/4) -> parents_influence
+parents_influence %>% as.data.table() -> parents_influence
+
+setkey(School, CNTSCHID)
+setkey(parents_influence, CNTSCHID)
+parents_influence[School[, .(CNTSCHID,SC013Q01TA)], nomatch=0][!is.na(SC013Q01TA) & !is.na(MEAN_INFLU), ] -> parents_and_type_school
+
+ifelse(parents_and_type_school$SC013Q01TA==1, "publiczna", "prywatna") -> parents_and_type_school$SC013Q01TA 
+ifelse(parents_and_type_school$sex =="male", "męska", parents_and_type_school$sex) -> parents_and_type_school$sex
+ifelse(parents_and_type_school$sex == "female", "żeńska", parents_and_type_school$sex) -> parents_and_type_school$sex
+ifelse(parents_and_type_school$sex == "mixed", "mieszana", parents_and_type_school$sex) -> parents_and_type_school$sex 
+
+setkey(School, CNTSCHID)
+setkey(parents_and_type_school, CNTSCHID)
+School[!is.na(SC001Q01TA), .(CNTSCHID, SC001Q01TA)][parents_and_type_school, nomatch=0] -> tmp
+
+ggplot(tmp) +
+  geom_point(aes(x = sex, y = SC001Q01TA, color = sex), position = "jitter", alpha = 0.4) +
+  facet_wrap(~ SC013Q01TA) +
+  labs(title = "Rozmiar miejscowosci w jakiej jest szkoła a typ szkoły.",
+       x = "Typ szkoły",
+       y = "Liczba mieszkańców") +
+  scale_y_continuous( breaks = seq(1,5,1), labels = c("fewer than 3 000", "3 000 to about 15 000", "15 000 to about 100 000",
+                                                      "100 000 to about 1 000 000", "with over 1 000 000")) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+a <- tmp[, .(COUNT = .N), .(SC013Q01TA, SC001Q01TA)][order(COUNT, decreasing = TRUE)] #najwiecej szkol publicznych w kazdej mozliwej kategorii miasta
+b <- tmp[, .(COUNT = .N), .(sex, SC001Q01TA)][order(COUNT, decreasing = TRUE)] #roznie, ale najwiecej szkol mieszanych
+
+#wykresiki
+p <- ggplot(a, aes(x = SC001Q01TA, y = COUNT, fill = SC013Q01TA)) +
+  geom_bar(stat="identity", width = .6) +
+  labs(x = "Wielkość miasta",
+       y = "Liczba szkół",
+       title = "Liczba szkół w zależnosci od wielkości miasta") + 
+  scale_fill_discrete(name = "Typ szkoły") +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_x_continuous(breaks = seq(1,5,1), labels = c("mniej niż 3tys.", "od 3tys. do ok.15tys." , "od 15tys. do ok.100tys.",
+                                                      "od 100tys. do ok.1mln", "ponad 1mln")) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 50, vjust = 0.5))
+
+q <- ggplot(b, aes(x = SC001Q01TA, y = COUNT, fill = sex)) +
+  geom_bar(stat="identity", width = .6, alpha=.7) +
+  labs(x = "Wielkość miasta",
+       y = "Liczba szkół",
+       title = "Liczba szkół w zależnosci od wielkości miasta") + 
+  scale_fill_discrete(name = "Typ szkoły") +
+  scale_fill_manual(values = c("pink", "royalblue4", "maroon3"))  +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_x_continuous( breaks = seq(1,5,1), labels = c("mniej niż 3tys.", "od 3tys. do ok.15tys." , "od 15tys. do ok.100tys.",
+                                                      "od 100tys. do ok.1mln", "ponad 1mln")) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 50, vjust = 0.5))
+
+#ggarrange(p, q,
+#          ncol = 1, nrow = 2) %>% 
+#  annotate_figure(top = text_grob("Liczba szkół w zależnosci od wielkości miasta", face = "bold", size = 14))
+p
+q
+
+```
+
+## Rodzice uczniów w szkołach UK
+
+Sprawdżmy najpierw czy zainteresowanie i wsparcie rodziców ma odzwierdziedlenie w wynikach w nauce dziecka.
+
+```{r ,dependson=c(-1, -6), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+
+a <- ggplot(parents_influence, aes(x = MEAN_INFLU, y = MEAN_RATE)) +
+      geom_point(aes(x = MEAN_INFLU, y = MEAN_RATE), position = position_jitter(width = 0.3), colour = "#008762", alpha = 0.15) +
+      labs(title = "Wpływ zainteresowania rodziców na wyniki w nauce.",
+           y = "Średni wynik ucznia",
+           x = "Zainteresowanie i wsparcie dziecka przez rodzica") +
+      scale_x_continuous(breaks = c(1,2,3,4), labels = c("Bardzo słabe", "Słabe", "Średnie", "Duże")) +
+      facet_wrap(~ sex) +
+      theme_bw()
+
+#wykresik do tematu z powyzszego komentarza
+b <- ggplot(parents_and_type_school) +
+      geom_violin(aes(x=MEAN_RATE, y=MEAN_INFLU, fill = SC013Q01TA), alpha= .4) +
+      facet_wrap(~ sex) +
+      labs(title = "Zaangażowanie rodziców a wpływ na wyniki w zależności od typu szkoły.",
+           x = "Średni wynik",
+           y = "Zaangażowanie rodzica w życie dziecka") +
+      scale_y_continuous(labels = c("Bardzo słabe", "Słabe", "Średnie", "Duże")) +
+      scale_x_continuous(breaks = seq(200, 800, 100)) +
+      scale_fill_discrete(name = "Typ szkoły") + 
+      theme_bw()
+
+
+a
+b
+```
+
+Jak widać rodzice ogólnie wspierają swoje dzieci i nie można stwierdzić, że ma to bezpośredni wpływ na ich wyniki.
