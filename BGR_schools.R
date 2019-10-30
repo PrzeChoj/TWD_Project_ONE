@@ -16,7 +16,7 @@ library(haven)
 #bedziemy potrzbowac oznaczen danych z tej kolumny, wiec wczytujemy je z pliku z oznaczeniami
 
 #sciezka do tego pliku
-file <- file.path("Dane" ,"PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS_CMB_SCH_QQQ.sas7bdat.format.sas")
+file <- file.path("dane" ,"PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS_CMB_SCH_QQQ.sas7bdat.format.sas")
 #poczatek wczytywania danych - od tego nr wiersza zaczyna sie kolumna STRATUM
 first_line <- grep("value \\$STRATUM", readLines(file))
 #szukamy konca wczytywania - w pliku z oznaczeniami koniec kolumny oznaczany jest przez ";"
@@ -83,24 +83,51 @@ tmp_schools$female <- tmp_schools$female %>% as.integer()
 tmp_schools$male <- tmp_schools$male %>% as.integer()
 
 #wykres do powyzszych wynikow 
-#zrobic legende TODO
-ggplot(Results_in_mixed_school) +
-  geom_point(aes(x = ST004D01T, y=Mean_math), stat = "identity", color="pink", size=8) +
+p <- ggplot(Results_in_mixed_school) +
+  geom_point(aes(x = ST004D01T, y=Mean_math), stat = "identity", color="red3", size=8) +
   geom_point(aes(x = ST004D01T, y=Mean_read), stat = "identity", color="navyblue", size=8) +
   geom_point(aes(x = ST004D01T, y=Mean_science), stat = "identity", color="orange", size=8) +
-  labs(title = "Średnie wyniki testów wsród szkół mieszanych z podziałem na płeć uczniów.",
-       y = NULL,
-       x = NULL)
+  labs(y = "Wynik ucznia",
+       x = "Uczniowie") +
+  scale_x_discrete(labels=c("dziewczyny", "chłopcy")) +
+  annotate(geom="text", x=1, y=476.5, label="MATH") +
+  annotate(geom="text", x=2, y=489, label="MATH") +
+  annotate(geom="text", x=1, y=497.5, label="READ") +
+  annotate(geom="text", x=2, y=482, label="READ") +
+  annotate(geom="text", x=1, y=494, label="SCIENCE") +
+  annotate(geom="text", x=2, y=498.5, label="SCIENCE") +
+  theme_bw()
+  
+#title = "Średnie wyniki testów wsród szkół mieszanych z podziałem na płeć uczniów.",
 
-#nie dala, poprawic kolory i zmienic os Y TODO
-przesuniecie <- function(x){
-  # przesuwa wektor, aby muc latwiej zauwarzyc ruznice w danych
-  x-450
-}
+tmp_schools$roznica <- tmp_schools$female - tmp_schools$male
+
+q <- ggplot(tmp_schools) +
+  geom_bar(aes(x = results, y = roznica, fill = c("chłopcy", "dziewczyny", "chłopcy")), stat= "identity") +
+  scale_x_discrete(labels=c("MATH", "READ", "SCIENCE")) +
+  theme_bw() +
+  labs(x = "Oceniany przedmiot",
+       y = "Różnica w wynikach testów") +
+  scale_fill_manual(name="Uczniowie", values = c("green4", "purple3", "green4"))
+  
+#title = "Średnie wyniki wsród szkół mieszanych.",
+#subtitle = "Podział na płeć uczniów.",
+
+library(ggpubr)
+e <- ggarrange(p, q,
+          ncol = 2, nrow = 1) %>% 
+  annotate_figure(top = text_grob("Średnie wyniki wsród szkół mieszanych. Podział na płeć uczniów.", face = "bold", size = 14))
+  
+  #nie dala, poprawic kolory i zmienic os Y TODO
+  przesuniecie <- function(x){
+    # przesuwa wektor, aby muc latwiej zauwarzyc ruznice w danych
+    x-450
+  }
+
 ggplot(tmp_schools) +
   geom_bar(aes(y = przesuniecie(female), x = results, fill=c("Female", "Female", "Female")), stat= "identity", alpha = 0.6, width = 0.5) +
   geom_bar(aes(y = przesuniecie(male), x = results, fill=c("Male", "Male", "Male")), stat = "identity", alpha = 0.4, width = 0.5) +
-  labs(subtitle = "Średnie wyniki wsród szkół mieszanych. Podział na płeć.",
+  labs(title = "Średnie wyniki wsród szkół mieszanych. Podział na płeć.",
        y = NULL,
        x = NULL) +
   theme(legend.title=element_blank()) +
@@ -137,9 +164,12 @@ tmp$Score <- c(Results_sex$Mean_science, Results_sex$Mean_read, Results_sex$Mean
 #wykres wynikow
 ggplot(tmp, aes(x=sex, color=Type, y=Score)) +
   geom_point(size=8) +
-  labs(title = "Średnie wyniki testów wsród roznych typow szkół.",
-       y = NULL,
-       x = NULL)
+  labs(title = "Średnie wyniki testów szkół w Wielkiej Brytanii.",
+       y = "Wynik ucznia",
+       x = "Typ szkoły") +
+  scale_x_discrete(labels = c("żeńska", "męska", "mieszana")) +
+  theme_bw() +
+  scale_color_manual(values = c("red3", "navy", "orange"))
 
 
 tmp <- tbl_df(Results_region_and_sex)
@@ -151,7 +181,21 @@ ggplot(tmp, aes(colour = sex)) +
        x = NULL) + 
   scale_colour_manual(values = c("#CC2A00", "#044BA5", "#E69F00"))
 
-### DALEJ NIC NIE ZOSTAŁO JESZCZE ZROBIONE
+ifelse(GBR_results$type == "maintained non-selective", "utrzymywana", GBR_results$type) -> GBR_results$type
+ifelse(GBR_results$type == "maintained selective", "utrzymywana", GBR_results$type) -> GBR_results$type
+ifelse(GBR_results$type == "Maintained", "utrzymywana", GBR_results$type) -> GBR_results$type
+ifelse(GBR_results$type== "academy", "akademia", GBR_results$type) -> GBR_results$type
+ifelse(GBR_results$type=="independent", "niezależna", GBR_results$type) -> GBR_results$type
+
+wynik <- GBR_results[, .(MEAN = (PV1MATH + PV1READ + PV1SCIE)/3), CNTSTUID]
+setkey(GBR_results, CNTSTUID)
+setkey(wynik, CNTSTUID)
+wynik <- wynik[GBR_results[, .(type,region, sex, CNTSTUID)], nomatch=0]
+
+ggplot(wynik, aes(x = type, y = MEAN, color = sex)) +
+  geom_violin()
+
+###########################
 
 tmp_math <- GBR_results[order(PV1MATH, decreasing = TRUE)][1:10,]
 tmp_read <- GBR_results[order(PV1READ, decreasing = TRUE)][1:10,]
@@ -173,12 +217,14 @@ parents_influence %>% mutate(MEAN_INFLU = (ST123Q01NA + ST123Q02NA + ST123Q03NA 
 parents_influence %>% as.data.table() -> parents_influence
 
 ggplot(parents_influence, aes(x = MEAN_INFLU, y = MEAN_RATE)) +
-  geom_point(aes(x = MEAN_INFLU, y = MEAN_RATE), position = position_jitter(width = 0.3), colour = "#008762") +
-  facet_wrap(~ sex) +
+  geom_point(aes(x = MEAN_INFLU, y = MEAN_RATE), position = position_jitter(width = 0.3), colour = "#008762", alpha = 0.15) +
   labs(title = "Wpływ zainteresowania rodziców na wyniki w nauce.",
-       x = "Średni wynik ucznia",
-       y = "Wpływ rodzica na wyniki dziecka") +
-  scale_x_continuous(breaks = c(1,2,3,4), labels = c("VERY WEAK", "WEAK", "STRONG", "VERY STRONG"))
+       y = "Średni wynik ucznia",
+       x = "Zainteresowanie i wsparcie dziecka przez rodzica") +
+  scale_x_continuous(breaks = c(1,2,3,4), labels = c("Bardzo słabe", "Słabe", "Średnie", "Duże")) +
+  facet_wrap(~ sex) +
+  theme_bw()
+  
 #WNIOSEK - zainteresowanie rodzicow nie wplywa na wyniki uczniow - ale mozna zauwazyc ze rodzice prawie zawsze wspieraja swoje dzieci
 
 #wczytujemy plik z danymi z kwestionariusza o szkole
@@ -192,12 +238,16 @@ GBR_results[School[,  .(CNTSCHID, SC013Q01TA)], nomatch=0][!is.na(SC013Q01TA),.(
 
 GBR_results[School[,  .(CNTSCHID, SC013Q01TA)], nomatch=0] %>% mutate(MEAN_RATE = (PV1MATH + PV1READ + PV1SCIE)/3) %>% as.data.table() -> type_schools
 type_schools[!is.na(SC013Q01TA), ] -> type_schools
-ifelse(type_schools$SC013Q01TA==1, "public", "private") -> type_schools$SC013Q01TA 
+ifelse(type_schools$SC013Q01TA==1, "publiczna", "prywatna") -> type_schools$SC013Q01TA 
 
-ggplot(type_schools) +
-  geom_violin(aes(x = sex, y = MEAN_RATE)) +
+ggplot(type_schools, aes(x = sex, y = MEAN_RATE)) +
+  geom_violin(aes(color = sex), fill = "gray80", alpha = 0.5) +
+  geom_jitter(aes(color = sex), alpha = 0.25, 
+              position = position_jitter(width = 0.3)) +
   facet_wrap(~region + SC013Q01TA) +
-  labs(title = "Średnie wyniki uczniow w zalezności od regionu i typu szkoly")
+  labs(title = "Średnie wyniki uczniów w zależności od regionu i typu szkoły") +
+  theme_bw() +
+  theme(legend.position = "none")
 # WNIOSEK - w szkolach prywatnych wyniki sa troche lepsze niz w publicznych - u kobiet jest to bardziej zauwazalne, poprawia sie srednio o 100-200 pkt
 #do wykresu wyzej mozna zrobic tez boxplota
 
@@ -205,7 +255,7 @@ ggplot(type_schools) +
 setkey(School, CNTSCHID)
 setkey(parents_influence, CNTSCHID)
 parents_influence[School[, .(CNTSCHID,SC013Q01TA)], nomatch=0][!is.na(SC013Q01TA) & !is.na(MEAN_INFLU), ] -> parents_and_type_school
-ifelse(parents_and_type_school$SC013Q01TA==1, "public", "private") -> parents_and_type_school$SC013Q01TA 
+ifelse(parents_and_type_school$SC013Q01TA==1, "publiczna", "prywatna") -> parents_and_type_school$SC013Q01TA 
 
 #wykresik do tematu z powyzszego komentarza
 ggplot(parents_and_type_school) +
@@ -230,11 +280,15 @@ setkey(parents_and_type_school, CNTSCHID)
 School[!is.na(SC001Q01TA), .(CNTSCHID, SC001Q01TA)][parents_and_type_school, nomatch=0] -> tmp
 
 ggplot(tmp) +
-  geom_point(aes(x = sex, y = SC001Q01TA)) +
+  geom_point(aes(x = sex, y = SC001Q01TA, color = sex), position = "jitter", alpha = 0.4) +
   facet_wrap(~ SC013Q01TA) +
-  labs(title = "Rozmiar miejscowosci w jakiej jest szkola a typ szkoly") +
+  labs(title = "Rozmiar miejscowosci w jakiej jest szkoła a typ szkoły.",
+       x = "Typ szkoły",
+       y = "Liczba mieszkańców") +
   scale_y_continuous( breaks = seq(1,5,1), labels = c("fewer than 3 000", "3 000 to about 15 000", "15 000 to about 100 000",
-                                                      "100 000 to about 1 000 000", "with over 1 000 000"))
+                                                      "100 000 to about 1 000 000", "with over 1 000 000")) +
+  theme_bw() +
+  theme(legend.position = "none")
 
 #sprobujmy zrobic to samo ale w tabeli zliczajac ilosc szkol w roznych wioskach
 
@@ -248,7 +302,7 @@ a <- tmp[, .(COUNT = .N), .(SC013Q01TA, SC001Q01TA)][order(COUNT, decreasing = T
 b <- tmp[, .(COUNT = .N), .(sex, SC001Q01TA)][order(COUNT, decreasing = TRUE)] #roznie, ale najwiecej szkol mieszanych
 
 #wykresiki
-ggplot(a, aes(x = SC001Q01TA, y = COUNT, fill = SC013Q01TA)) +
+p <- ggplot(a, aes(x = SC001Q01TA, y = COUNT, fill = SC013Q01TA)) +
   geom_bar(stat="identity", width = .6) +
   labs(x = "Wielkosc miasta",
        y = "Liczba szkol", 
@@ -256,10 +310,10 @@ ggplot(a, aes(x = SC001Q01TA, y = COUNT, fill = SC013Q01TA)) +
   scale_fill_discrete(name = "Typ szkoły") +
   scale_y_continuous(expand = c(0,0)) +
   scale_x_continuous(breaks = seq(1,5,1), labels = c("fewer than 3 000", "3 000 to about 15 000", "15 000 to about 100 000",
-                                                      "100 000 to about 1 000 000", "with over 1 000 000"))
-#wniosek - najwiecej szkol i prywatnych i publicznych jest w miastach srednich 15 tys do 100 tys
+                                                      "100 000 to about 1 000 000", "with over 1 000 000")) +
+  theme_bw()
 
-ggplot(b, aes(x = SC001Q01TA, y = COUNT, fill = sex)) +
+q <- ggplot(b, aes(x = SC001Q01TA, y = COUNT, fill = sex)) +
   geom_bar(stat="identity", width = .6, alpha=.7) +
   labs(x = "Wielkosc miasta",
        y = "Liczba szkol", 
@@ -268,5 +322,6 @@ ggplot(b, aes(x = SC001Q01TA, y = COUNT, fill = sex)) +
   scale_fill_manual(values = c("pink", "royalblue4", "maroon3"))  +
   scale_y_continuous(expand = c(0,0)) +
   scale_x_continuous( breaks = seq(1,5,1), labels = c("fewer than 3 000", "3 000 to about 15 000", "15 000 to about 100 000",
-                                                      "100 000 to about 1 000 000", "with over 1 000 000"))
+                                                      "100 000 to about 1 000 000", "with over 1 000 000")) +
+  theme_bw()
 #wniosek - analogiczne jak wyzej
