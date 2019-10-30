@@ -1,0 +1,92 @@
+---
+title: "ToDo"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Pierwszy projekt TWD
+## Dane PISA
+
+Smieszny pdf w ktorym jest co nieco informacji o pytaniach:\
+https://www.oecd-ilibrary.org/docserver/9789264273856-19-en.pdf?expires=1570538884&id=id&accname=guest&checksum=D82A0626AA2869CBC7A2F21A10C55776
+
+
+Zrobione:\
+1. A~ Skrypt `procent_panstw` dzielacy dane na panstwa i podajacy procentowy udzial kazdego z wyroznionych elementow w przystepnej formie. Mozliwa pozniejsza modyfikacja do specyficznych celow.\
+2. A~ Tabelki typu `powtarzanie_klasy` informujace o tym w jakich panstwach i jak bardzo uczniowie powtarzali klasy. Najwazniejsza: `powtarzanie_klasy_merged`.
+3. A~ Wykres `posiadanie biurka`. Oczywiście do przyszlej poprawy.
+4. P~ Wszelkie zebrane dane są w pliku: \
+ - Europa.R - porównanie Wielkiej Brytanii do innych państw, wyniki względem Europy i państw o najlepszym systemie szkolnictwa \
+ - GBR_schools.R - wszystkie porównania uczniów w szkołach w Wielkiej Brytanii (nie opisuję jakie gdyż wyniki są już ogarniete i przedstawione w pliku Raport.Rmd) \
+
+Ciekawe o uczniach:\
+1. Posiadanie własnego pokoju do nauki/biórka: `CY6_QST_MS_STQ_PBA_Final`: `ST011Q01TA`\
+2. Jak duzo maja samochodow, instrumentow muzycznych?: `ST012Q02TA`\
+3. Jak duzo ksiazek?: `ST013Q01TA`\
+4. Powtarzanie klasy w kontekscie panstwa: `ST127Q01TA`\
+5. Poczucie przynaleznosci spolecznej: `ST034Q01TA`\
+6. Uwaga na zajeciach: `ST097Q01TA`, `ST098Q01TA`\
+7. Ciekawostka: Jak nazywa sie kurs: `ST065Q01NA`\
+8. Uwaga nauczycieli do uczniow: `ST100Q01TA`\
+9. Dyskucje o nauce na zajeciach: `ST103Q01NA`\
+10. Informacje o postepach: `ST104Q01NA`\
+11. Opinia o zanieczyszczeniu srodowiska: `ST092Q01TA`\
+12. Zaciekawienie ucznia przedmiotem: `ST094Q01NA`\
+13. Cel uczenia sie: `ST113Q01TA`\
+14. Jest tam gdzieś pytanie, ile czasu spędzasz na nauce poza szkola.\
+15. \
+
+Ciekawe o rodzicach: `cy6_ms_cmb_stu_qqq.sas7bdat`\
+1. Dziecko oglada science on TV: `PA002Q01TA`\
+2. Czyta science fiction: `PA002Q03TA`\
+3. Chodzi na koła naukowe: `PA002Q05TA`\
+4. Naprawia zepsute rzeczy: `PA002Q08NA`\
+5. Rodzice rozmawiaja z dzieckiem o szkole: `PA003Q01TA`\
+6. 
+7. 
+8. 
+9. 
+10. 
+
+Cele:\
+1. Raport z pierwszej części projektu przedstawia wyniki pobieżnej analizy szkół w Wielkiej Brytanii i uczniów: \
+
+- sprawdzono miedzy soba uczniow ze szkol i ich wyniki \
+- rodzicow - skad sa i do jakich szkol wysylaja dzieci \
+- wyniki uczniow w podziale na regiony, szkoly i szkoly okreslone poprzez uzyskiwany fundusz \
+
+2. Druga część projektu ma być głębszą analizą - SZUKAMY HISTORII w uzyskanych w pkt. 1. wyników. \
+
+Zadania:\
+
+NOTKA - zrobic wykres o wynikach z podzialem tylko na szkoly prywatne i publiczne \
+
+1. Porównać wyniki uczniow z państwami o podobnym rozwoju - dzielimy na prywatne i publiczne a uczniów na płcie.\
+
+2. Zrobić schemat psychologiczny danych uczniów i porównywać te dane między sobą: \
+
+- wybrać ciekawe zagadnienia do schematu psychologicznego \
+- wplyw stresu? tylko co moze na stres wplywac? \
+
+INTERNET : Profil psychologiczny tworzą:
+ osobowość,
+ postawy wobec siebie i innych ludzi, dóbr, problemów, spraw spornych i kontrowersyjnych,
+ sposoby myślenia,
+ motywy działania,
+ wyznawane wartości,
+ poczucie przynależności do rodziny, grupy społecznej, zawodowej i kraju,
+ stosunek do ryzyka oraz innowacji,
+ znaczenie przywiązywane do rodzajów, poziomu i sposobów zaspokajania potrzeb.
+
+Co można wziac: \
+ - zainteresowanie rodzicow dzieckiem
+ - pochodzenie rodzicow
+ - zamoznosc
+ - latwosc zawierania znajomosci/jak widzi siebie w szkole/itp
+ - 
