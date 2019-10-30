@@ -16,18 +16,14 @@ knitr::opts_chunk$set(echo = TRUE)
 Smieszny pdf w ktorym jest co nieco informacji o pytaniach:\
 https://www.oecd-ilibrary.org/docserver/9789264273856-19-en.pdf?expires=1570538884&id=id&accname=guest&checksum=D82A0626AA2869CBC7A2F21A10C55776
 
-Cele:\
-1. Wielka Brytania posiada podział szkół na męskie, żeńskie i mieszane:\
-a) różnice między tymi szkołami między sobą\
-b) czy chlopcy/dziewczyni mają leprze wyniki gdy są zmieszani z inną płcią?\
-
-\
-Info o płci: `ST004` kolumna $29$.
 
 Zrobione:\
 1. A~ Skrypt `procent_panstw` dzielacy dane na panstwa i podajacy procentowy udzial kazdego z wyroznionych elementow w przystepnej formie. Mozliwa pozniejsza modyfikacja do specyficznych celow.\
 2. A~ Tabelki typu `powtarzanie_klasy` informujace o tym w jakich panstwach i jak bardzo uczniowie powtarzali klasy. Najwazniejsza: `powtarzanie_klasy_merged`.
 3. A~ Wykres `posiadanie biurka`. Oczywiście do przyszlej poprawy.
+4. P~ Wszelkie zebrane dane są w pliku: \
+ - Europa.R - porównanie Wielkiej Brytanii do innych państw, wyniki względem Europy i państw o najlepszym systemie szkolnictwa \
+ - GBR_schools.R - wszystkie porównania uczniów w szkołach w Wielkiej Brytanii (nie opisuję jakie gdyż wyniki są już ogarniete i przedstawione w pliku Raport.Rmd) \
 
 Ciekawe o uczniach:\
 1. Posiadanie własnego pokoju do nauki/biórka: `CY6_QST_MS_STQ_PBA_Final`: `ST011Q01TA`\
@@ -58,23 +54,39 @@ Ciekawe o rodzicach: `cy6_ms_cmb_stu_qqq.sas7bdat`\
 9. 
 10. 
 
-Problemy:\
-1. \
-2. 
+Cele:\
+1. Raport z pierwszej części projektu przedstawia wyniki pobieżnej analizy szkół w Wielkiej Brytanii i uczniów: \
 
-Paula:\
-1) Wyciągnac z pliku tekstowego informacje o szkolach w Wielkiej Brytanii i podziale na szkoly meskie, żenskie.\
-2) Wyciagnac z pliku tekstowego informacje, ktore szkoły z Wielkiej Brytanii są w którym sub-panstwie.\
-3) Porównać z innymi szkolamy w ramach sub-panstwa, z państwami o podobnym rozwoju.\
+- sprawdzono miedzy soba uczniow ze szkol i ich wyniki \
+- rodzicow - skad sa i do jakich szkol wysylaja dzieci \
+- wyniki uczniow w podziale na regiony, szkoly i szkoly okreslone poprzez uzyskiwany fundusz \
 
+2. Druga część projektu ma być głębszą analizą - SZUKAMY HISTORII w uzyskanych w pkt. 1. wyników. \
 
-Adas:\
-1) Poszukać informacjii o sredniej temperaturze w danym panstwie w roku $2015$. Zbadać wpływ temperatury na wyniki i inne dane.\
+Zadania:\
 
+NOTKA - zrobic wykres o wynikach z podzialem tylko na szkoly prywatne i publiczne \
 
+1. Porównać wyniki uczniow z państwami o podobnym rozwoju - dzielimy na prywatne i publiczne a uczniów na płcie.\
 
+2. Zrobić schemat psychologiczny danych uczniów i porównywać te dane między sobą: \
 
+- wybrać ciekawe zagadnienia do schematu psychologicznego \
+- wplyw stresu? tylko co moze na stres wplywac? \
 
+INTERNET : Profil psychologiczny tworzą:
+ osobowość,
+ postawy wobec siebie i innych ludzi, dóbr, problemów, spraw spornych i kontrowersyjnych,
+ sposoby myślenia,
+ motywy działania,
+ wyznawane wartości,
+ poczucie przynależności do rodziny, grupy społecznej, zawodowej i kraju,
+ stosunek do ryzyka oraz innowacji,
+ znaczenie przywiązywane do rodzajów, poziomu i sposobów zaspokajania potrzeb.
 
-
-
+Co można wziac: \
+ - zainteresowanie rodzicow dzieckiem
+ - pochodzenie rodzicow
+ - zamoznosc
+ - latwosc zawierania znajomosci/jak widzi siebie w szkole/itp
+ - 
