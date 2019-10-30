@@ -10,7 +10,6 @@ end_line <- tmp[tmp > first_line] #to jest nr wiersza posiadajacy ";" po kolumni
 #wczytanie oznaczen
 Labels <- read.table(file,sep = "=", skip=first_line,nrows=(end_line[1]-first_line-1), stringsAsFactors = FALSE) %>% as.data.table()
 colnames(Labels) <- c("CNT", "Label")
-
 Labels$CNT <- Labels$CNT %>% substr(1,3)
 
 #wczytujemy plik z danymi z kwestionariusza o uczniach
@@ -39,17 +38,17 @@ Europa_Results <- Student[
 
 setkey(Europa_Results, CNT)
 setkey(Labels2, CNT)
-Europa_Results <- Europa_Results[Labels2, nomatch=0][order(MEAN)]
+Europa_Results <- Europa_Results[Labels2, nomatch=0][order(MEDIAN)]
 
-cbind(Europa_Results[, .(MEDIAN, Label)], rep("median", length(Europa_Results$MEAN))) -> A
-cbind(Europa_Results[, .(MAX, Label)], rep("max", length(Europa_Results$MEAN))) -> B
-cbind(Europa_Results[, .(MIN, Label)], rep("min", length(Europa_Results$MEAN))) -> C
+cbind(Europa_Results[, .(MEDIAN, Label)], rep("median", length(Europa_Results$MEDIAN))) -> A
+cbind(Europa_Results[, .(MAX, Label)], rep("max", length(Europa_Results$MEDIAN))) -> B
+cbind(Europa_Results[, .(MIN, Label)], rep("min", length(Europa_Results$MEDIAN))) -> C
 rbindlist(list(A, B, C)) -> Europa
 
-Europa[order(MEAN, decreasing = TRUE)] -> Europa
+Europa[order(MEDIAN, decreasing = TRUE)] -> Europa
 
 ggplot(Europa) +
-  geom_point(aes(reorder(Label, MEAN), MEAN, colour = V2), stat = "identity") +
+  geom_point(aes(reorder(Label, MEDIAN), MEDIAN, colour = V2), stat = "identity") +
   theme_bw()+
   coord_flip() +
   scale_y_continuous(expand = c(0,0), limits = c(0, 850)) +
@@ -58,6 +57,8 @@ ggplot(Europa) +
         title = "Porównanie wyników państw z Europy",
        color = "Wynik testu") +
   geom_vline(xintercept = c(29,0), size = 1, 
+             color = "grey", linetype = "dashed", alpha=0.8) +
+  geom_vline(xintercept = c(20,0), size = 1, 
              color = "grey", linetype = "dashed", alpha=0.5) +
   annotate("point", x = 29, y = 813.8760, colour = "red", size=4) +
   annotate("point", x = 29, y = 497.4420, colour = "green", size=4) +
@@ -89,9 +90,6 @@ rbindlist(list(A, B, C)) -> World
 
 World[order(Label, decreasing = TRUE)] -> World
 
-#x <- World$Label %>% match(c(" Finland", " Japan", " Denmark", " Russian Federation", " Norway", " United Kingdom", " Sweden", " Israel", " Hong Kong",
-#                        " Netherlands", " Belgium", " Germany", " China", " Singapore", " Portugal", " Hungary", " Estonia", " France", " United States"))
-
 ggplot(World) +
   geom_point(aes(Label, MEDIAN, colour = V2), stat = "identity") +
   theme_bw()+
@@ -105,6 +103,7 @@ ggplot(World) +
              color = "grey", linetype = "dashed", alpha=0.5) +
   geom_hline(yintercept = c(0,497.4420), size = 1, 
              color = "grey", linetype = "dashed", alpha=0.5) +
-  annotate("point", x = 17, y = 813.8760, colour = "red", size=4) +
-  annotate("point", x = 17, y = 497.4420, colour = "green", size=4) +
-  annotate("point", x = 17, y = 175.8683, colour = "blue", size=4)
+  annotate("point", x = 17, y = 813.8760, colour = "red", size=7) +
+  annotate("point", x = 17, y = 497.4420, colour = "green", size=7) +
+  annotate("point", x = 17, y = 175.8683, colour = "blue", size=7) +
+  theme(axis.text.y = element_text(size = c(rep(10, 16), 18, 10)))

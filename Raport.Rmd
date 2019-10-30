@@ -3,8 +3,8 @@ title: "Analiza wyników PISA w UK"
 author: "Paulina Przybyłek & Przemysław Chojecki"
 date: "23 października 2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE, echo=FALSE, cache=TRUE, message=FALSE}
@@ -16,6 +16,8 @@ library(stringi)
 library(ggplot2)
 library(haven)
 library(ggpubr)
+
+source(file.path(getwd(), "kod", "skrypty.R"))
 
 ```
 
@@ -382,7 +384,8 @@ ggplot(tmp) +
   facet_wrap(~ SC013Q01TA) +
   labs(title = "Rozmiar miejscowosci w jakiej jest szkoła a typ szkoły.",
        x = "Typ szkoły",
-       y = "Liczba mieszkańców") +
+       y = "Liczba mieszkańców",
+       name = "Typ szkoły") +
   scale_y_continuous( breaks = seq(1,5,1), labels = c("fewer than 3 000", "3 000 to about 15 000", "15 000 to about 100 000",
                                                       "100 000 to about 1 000 000", "with over 1 000 000")) +
   theme_bw() +
@@ -425,11 +428,100 @@ q
 
 ```
 
+## Pogoda - czy ilość opadów deszczu wpływa na wyniki uczniów?
+
+Dane pogodowe pochodzą ze strony: 
+
+https://www.metoffice.gov.uk/hadobs/hadukp/data/download.html
+
+i zawierają informacje z podziałem na konkretne regiony w Wielkiej Brytanii.
+
+```{r ,dependson=(-6), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+# potrzebne:
+  # GBR
+  # GBR_results
+
+# wczytanie:
+GBR.path <- file.path(getwd(), "dane", "GBR.csv")
+GBR <- read.csv(GBR.path)
+
+# pierwsza czesc
+GBR_results$fullregion <- paste(GBR_results$region, GBR_results$subregion)
+map <- cbind(GBR_results$fullregion %>% unique, rep(0, times=12), rep(0, times=12))
+colnames(map) <- c("fullregion", "rainregion", "deszcz")
+map[1,2] <- "North East England"
+map[2,2] <- "Central England"
+map[3,2] <- "South East England"
+map[4,2] <- "Central England"
+map[5,2] <- "Northern Ireland"
+map[6,2] <- "Northern Ireland"
+map[7,2] <- "Northern Ireland"
+map[8,2] <- "Northern Ireland"
+map[9,2] <- "Northern Ireland"
+map[10,2] <- "North West England & Wales"
+map[11,2] <- "South West England & Wales"
+map[12,2] <- "South West England & Wales"
+
+# dane z deszczu
+# https://www.metoffice.gov.uk/hadobs/hadukp/data/download.html
+
+url <- "https://www.metoffice.gov.uk/hadobs/hadukp/data/download.html"
+strona <- readLines(url)
+# map[,2] %>% unique # takich szukam
+indexy_danych <- which(!(strona %>% stri_extract_all_regex("seasonal/") %>% unlist %>% is.na()))
+
+pattern <- map[,2] %>% unique() %>% paste(collapse = "|")
+pattern <- paste("(", pattern, ")", sep="")
+indexy_danych <- indexy_danych[which(!(strona[indexy_danych-2] %>% stri_extract_all_regex(pattern) %>% unlist %>% is.na()))]
+
+koncowki <- strona[indexy_danych] %>% stri_extract_all_regex("seasonal[^\"]*") %>% unlist
+url_dane <- paste("https://www.metoffice.gov.uk/hadobs/hadukp/data/", koncowki, sep="")
+
+deszcz <- rep(0.1, 6)
+for(i in 1:6){
+  strona_dane <- readLines(url_dane[i])
+  deszcz[i] <- strona_dane %>% tail(12) %>% head(7) %>% substr(34, 39) %>% as.numeric() %>% sum
+}
+
+map[1,3] <- deszcz[5]
+map[2,3] <- deszcz[3]
+map[3,3] <- deszcz[1]
+map[4,3] <- deszcz[3]
+map[5,3] <- deszcz[6]
+map[6,3] <- deszcz[6]
+map[7,3] <- deszcz[6]
+map[8,3] <- deszcz[6]
+map[9,3] <- deszcz[6]
+map[10,3] <- deszcz[4]
+map[11,3] <- deszcz[2]
+map[12,3] <- deszcz[2]
+
+map <- map %>% tbl_df
+GBR_results <- GBR_results %>% inner_join(map, by="fullregion") # nie bylo oryginalnie zrobione i dodane do GBR.csv!
+
+# druga czesc
+GBR$fullregion <- paste(GBR$region, GBR$subregion, sep=" ")
+GBR <- GBR %>% inner_join(map, by="fullregion")
+
+# Ilosc deszczu a wyniki w nauce
+GBR_deszcz <- GBR %>% select(deszcz, rainregion, PV10MATH, PV10READ, PV10SCIE)
+GBR_deszcz$deszcz <- GBR_deszcz$deszcz %>% as.numeric()
+
+ggplot(data = GBR_deszcz, aes(x = deszcz, y = (PV10MATH + PV10READ + PV10SCIE)/3)) +
+  geom_point(alpha = 0.01, position = position_jitter(width = 50), aes(color = rainregion), show.legend = FALSE) +
+  geom_boxplot(aes(fill = rainregion), outlier.color = NA)+
+  ggtitle("Ilość deszczu a wyniki w nauce") +
+  xlab("Suma opadów w latach 2008-2014") + ylab("Średni wynik z testu") +
+  scale_fill_discrete(name = "Region") + 
+  theme_bw()
+```
+
+
 ## Rodzice uczniów w szkołach UK
 
 Sprawdżmy najpierw czy zainteresowanie i wsparcie rodziców ma odzwierdziedlenie w wynikach w nauce dziecka.
 
-```{r ,dependson=c(-1, -6), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+```{r ,dependson=c(-2, -7), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
 
 a <- ggplot(parents_influence, aes(x = MEAN_INFLU, y = MEAN_RATE)) +
       geom_point(aes(x = MEAN_INFLU, y = MEAN_RATE), position = position_jitter(width = 0.3), colour = "#008762", alpha = 0.15) +
@@ -457,4 +549,207 @@ a
 b
 ```
 
-Jak widać rodzice ogólnie wspierają swoje dzieci i nie można stwierdzić, że ma to bezpośredni wpływ na ich wyniki.
+Jak widać rodzice ogólnie wspierają swoje dzieci i nie można stwierdzić, że ma to bezpośredni wpływ na ich wyniki. 
+
+Przyjrzyjmy się teraz pochodzeniu rodziców:
+
+```{r ,dependson=c(-8, -2), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+# Wyniki testow w zaleznosci od narodowosci rodzicow
+dane <- GBR$ST019BQ01T + GBR$ST019CQ01T
+dane <- cbind((GBR$PV10MATH+GBR$PV10READ+GBR$PV10SCIE)/3, dane)
+colnames(dane) <- c("wynikTEST", "Rodzice")
+dane <- dane %>% tbl_df() %>% filter(!is.na(Rodzice))
+dane$Rodzice <- ifelse(dane$Rodzice==2, "Brytyjczycy", ifelse(dane$Rodzice==3, "Brytyjczyk i obcokrajowiec", "Obcokrajowcy"))
+
+ggplot(data = dane, aes(x=Rodzice, y=wynikTEST)) +
+  geom_point(alpha = 0.02, position = position_jitter(width = 0.4), aes(colour = Rodzice), show.legend = FALSE) +
+  geom_boxplot(color = "black", outlier.color = NA, show.legend = FALSE) +
+  ggtitle("Wyniki testów w zależnosci od narodowości rodziców") +
+  xlab("Pochodzenie rodziców") + ylab("Średni wynik z testu") +
+  theme(legend.position = "none") +
+  theme_bw()
+```
+
+```{r rodziceBrytole,dependson=c(-3, -9), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+
+# w szkolach jaki procent uczniow jest brytyjczykami
+dane <- GBR$ST019BQ01T + GBR$ST019CQ01T
+dane <- cbind(GBR$sex, dane)
+colnames(dane) <- c("1", "dane")
+dane <- dane %>% tbl_df()
+rodzice <- procent_panstw(dane)
+colnames(rodzice) <- c("jeden", "oboje", "żaden") # sa brytyjczykami
+rodzice <- as.data.frame(rodzice)
+
+rodzice <- do_plota(rodzice)
+rodzice$dane <- 100*rodzice$dane
+
+levels(rodzice$kolumny) <- unique(rodzice$kolumny)[c(3, 1, 2)]
+
+ggplot(data = rodzice, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(aes(fill=factor(kolumny, levels(rodzice$kolumny))), stat="identity", width = 0.7) +
+  ggtitle("Jaki procent uczniów w specyficznych szkołach ma jakich rodziców") +
+  xlab("Rodzaj szkoły") + ylab("Procent uczniów") +
+  labs(name = "Liczba rodziców Brytyjczyków") +
+  scale_x_discrete(labels=c("damska", "męska", "mieszana")) +
+  scale_y_continuous(expand= c(0,0), limits = c(0, 110)) +
+  scale_fill_manual(name = "Liczba rodziców Brytyjczyków", values = c("chartreuse4", "orange", "firebrick")) +
+  theme_bw() 
+```
+
+
+```{r rodziceBrytole2,dependson=c(-4, -10), echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+# do jakich szkol wysylaja swoich dzieci w zaleznosci od tego, ile z rodzicow jest Brytyjczykami
+dane <- GBR$ST019BQ01T + GBR$ST019CQ01T
+GBR_sex <- GBR$sex %>% as.character()
+dane <- cbind(GBR_sex, dane)
+colnames(dane) <- c("1", "dane")
+dane <- dane %>% tbl_df()
+
+dane2 <- dane[which(dane$dane=="2"),]
+dane3 <- dane[which(dane$dane=="3"),]
+dane4 <- dane[which(dane$dane=="4"),]
+
+wynik <- matrix(nrow=3, ncol=3)
+rownames(wynik) <- c("obaj", "jeden rodzic", "zaden")
+colnames(wynik) <- c("mieszana", "męska", "damska")
+
+wynik[1,1] <- mean(dane2$`1`=="mixed")
+wynik[1,2] <- mean(dane2$`1`=="male")
+wynik[1,3] <- mean(dane2$`1`=="female")
+
+wynik[2,1] <- mean(dane3$`1`=="mixed")
+wynik[2,2] <- mean(dane3$`1`=="male")
+wynik[2,3] <- mean(dane3$`1`=="female")
+
+wynik[3,1] <- mean(dane4$`1`=="mixed")
+wynik[3,2] <- mean(dane4$`1`=="male")
+wynik[3,3] <- mean(dane4$`1`=="female")
+
+wynik <- as.data.frame(wynik)
+wynik <- do_plota(wynik)
+wynik$dane <- 100*wynik$dane
+
+ggplot(data = wynik, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(stat="identity", width = 0.6) +
+  ggtitle("Szkoły, do jakich rodzice wysyłają swoje dzieci") +
+  xlab("Liczba rodziców Brytyjczyków") + ylab("Procent uczniów") +
+  scale_fill_discrete(name = "Rodzaj szkoły") +
+  scale_x_discrete(labels=c("jeden", "obaj", "żaden")) +
+  scale_y_continuous(expand= c(0,0), limits = c(0, 110)) +
+  theme_bw() 
+```
+
+## Uczniowie w szkołach Wielkiej Brytanii
+
+Poniższa analiza porównuje uczniów ze specyficznych szkół między sobą (typy szkół określone przez płeć uczniów).
+
+Najpierw spojrzyjmy na łatwość zawierania znajomości między uczniami wśród specyficznych szkół.
+
+```{r nowe_znajomosci, dependson=c(-5, -11), cache=TRUE, echo=FALSE, message=FALSE}
+
+tmp <- procent_sex("ST034Q02TA")
+tmp <- tmp[,c(3,2,1,4)]
+colnames(tmp) <- c("Bardzo się zgadzam", "Zgadzam się", "Nie zgadzam się", "Bardzo się nie zgadzam")
+tmp <- do_plota(tmp)
+
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
+ggplot(data = tmp, aes(x=wiersze, y=dane*100, fill=kolumny)) +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity", width = 0.7) +
+  ggtitle("Łatwo jest mi zawierać znajomości...") +
+  xlab("Rodzaj szkoły") + ylab("Procent uczniów") +
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "męska", "mieszana")) +
+  scale_y_continuous(expand= c(0,0), limits = c(0, 110)) +
+  theme_bw()
+```
+
+Mozna zauważyć, że mężczyżni zawierają łatwo znajomości w szkole tylko dla mężczyzn.
+
+Kolejny wykres ukazuje skupienie i słuchanie nauczyciela na lekcji w poszczególnych szkołach.
+
+```{r sluchanie_na_zajeciach, dependson=c(-6,-12), cache=TRUE, echo=FALSE, message=FALSE}
+
+tmp <- procent_sex("ST097Q01TA")
+tmp <- tmp[,c(3,1,2,4)]
+colnames(tmp) <- c("Na każdej lekcji", "Na większości lekcji", "Na kilku lekcjach", "Prawie nigdy")
+tmp <- do_plota(tmp)
+tmp$dane <- 100*tmp$dane
+
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
+ggplot(data = tmp, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity", width = 0.7) +
+  ggtitle("Jak często sie zdarza, że uczniowie nie sluchają...") +
+  xlab("Rodzaj szkoły") + ylab("Procent uczniów") +
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "męska", "mieszana"))+
+  scale_y_continuous(expand= c(0,0), limits = c(0, 110)) +
+  theme_bw()
+```
+
+Wniosek - dziewczyny bardziej uważają na zajęciach. Skoro taki jest wynik, to sprawdźmy jak uczniowie rozrabiają/przeszkadzają w szkole.
+
+```{r rozrabianie, dependson=c(-7,-13), cache=TRUE, echo=FALSE, message=FALSE}
+tmp <- procent_sex("ST097Q02TA")
+tmp <- tmp[,c(3,1,2,4)]
+colnames(tmp) <- c("Na każdej lekcji", "Na większosci lekcji", "Na kilku lekcjach", "Prawie nigdy")
+tmp <- do_plota(tmp)
+tmp$dane <- 100*tmp$dane
+
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
+ggplot(data = tmp, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity", width = 0.7) +
+  ggtitle("Jak często się zdarza, że uczniowie rozrabiają/przeszkadzają...") +
+  xlab("Rodzaj szkoły") + ylab("Procent uczniów") +
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "męska", "mieszana"))+
+  scale_y_continuous(expand= c(0,0), limits = c(0, 110)) +
+  theme_bw()
+```
+
+Jeśli chodzi o ostatnią wartość - prawie nigdy - to dziewczyny w szkołach damskich rozrabiają dwa razy rzadziej.
+
+Przyjrzyjmy się trochę tematyce zajęć.
+
+```{r klotnie_o_nauke, dependson=c(-8,-14), cache=TRUE, echo=FALSE, message=FALSE}
+tmp <- procent_sex("ST098Q03NA")
+tmp <- tmp[,c(4,2,1,3)]
+colnames(tmp) <- c("Na każdej lekcji", "Na większości lekcji", "Na kilku lekcjach", "Prawie nigdy")
+tmp <- do_plota(tmp)
+tmp$dane <- 100*tmp$dane
+
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
+ggplot(data = tmp, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity", width = 0.7) +
+  ggtitle("Jak często uczniowie dyskutują na temat zajęć...") +
+  xlab("Rodzaj szkoły") + ylab("Procent uczniów") +
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "męska", "mieszana"))+
+  scale_y_continuous(expand= c(0,0), limits = c(0, 110)) +
+  theme_bw()
+```
+
+```{r powtarzanie_eksperymentu, dependson=c(-9,-15), cache=TRUE, echo=FALSE, message=FALSE}
+tmp <- procent_sex("ST131Q06NA")
+tmp <- tmp[, c(4, 3, 1, 2)]
+colnames(tmp) <- c("Bardzo się nie zgadzam", "Nie zgadzam się", "Zgadzam się", "Bardzo się zgadzam")
+tmp <- do_plota(tmp)
+tmp$dane <- 100*tmp$dane
+
+levels(tmp$kolumny) <- unique(tmp$kolumny)[c(1, 2, 3, 4)]
+
+ggplot(data = tmp, aes(x=wiersze, y=dane, fill=kolumny)) +
+  geom_bar(aes(fill=factor(kolumny, levels(tmp$kolumny))), stat="identity", width = 0.7) +
+  ggtitle("Dobrze jest wiele razy powtarzać eksperyment, aby się upewnić...") +
+  xlab("Rodzaj szkoły") + ylab("Procent uczniów") +
+  scale_fill_discrete(name = "") +
+  scale_x_discrete(labels=c("damska", "męska", "mieszana"))+
+  scale_y_continuous(expand= c(0,0), limits = c(0, 110)) +
+  theme_bw()
+```
+
+Wnioskiem z pierwszego jest większe zainteresowanie dziewcząt nauką. Drugi wykres natomiast przedstawia, że pełna zgoda występuje rzadziej w szkołach mieszanych.
