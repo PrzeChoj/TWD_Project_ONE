@@ -22,7 +22,13 @@ a) różnice między tymi szkołami między sobą\
 b) czy chlopcy/dziewczyni mają leprze wyniki gdy są zmieszani z inną płcią?\
 
 \
-Info o płci: `ST004` kolumna $29$.
+Info o płci: `ST004` kolumna $29$.\
+Zarobki: `ESCS`       $0$ to srednia, a $+$ i $-$ to odchylenie od sredniego statusu materialnego.
+
+Biecek:\
+1. Szkola prywatna/publiczna a stres\
+2. Porownanie z polska\
+3. Czy chlopcy/dziewczynki ucza sie wiecej w prywatnyc,czy publicznych szkolach?\
 
 Zrobione:\
 1. A~ Skrypt `procent_panstw` dzielacy dane na panstwa i podajacy procentowy udzial kazdego z wyroznionych elementow w przystepnej formie. Mozliwa pozniejsza modyfikacja do specyficznych celow.\
