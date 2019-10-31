@@ -19,8 +19,8 @@ https://www.oecd-ilibrary.org/docserver/9789264273856-19-en.pdf?expires=15705388
 
 Zrobione:\
 1. A~ Skrypt `procent_panstw` dzielacy dane na panstwa i podajacy procentowy udzial kazdego z wyroznionych elementow w przystepnej formie. Mozliwa pozniejsza modyfikacja do specyficznych celow.\
-2. A~ Tabelki typu `powtarzanie_klasy` informujace o tym w jakich panstwach i jak bardzo uczniowie powtarzali klasy. Najwazniejsza: `powtarzanie_klasy_merged`.
-3. A~ Wykres `posiadanie biurka`. Oczywiście do przyszlej poprawy.
+2. A~ Tabelki typu `powtarzanie_klasy` informujace o tym w jakich panstwach i jak bardzo uczniowie powtarzali klasy. Najwazniejsza: `powtarzanie_klasy_merged`.\
+3. A~ Wykres `posiadanie biurka`. Oczywiście do przyszlej poprawy.\
 4. P~ Wszelkie zebrane dane są w pliku: \
  - Europa.R - porównanie Wielkiej Brytanii do innych państw, wyniki względem Europy i państw o najlepszym systemie szkolnictwa \
  - GBR_schools.R - wszystkie porównania uczniów w szkołach w Wielkiej Brytanii (nie opisuję jakie gdyż wyniki są już ogarniete i przedstawione w pliku Raport.Rmd) \
@@ -74,19 +74,25 @@ NOTKA - zrobic wykres o wynikach z podzialem tylko na szkoly prywatne i publiczn
 - wybrać ciekawe zagadnienia do schematu psychologicznego \
 - wplyw stresu? tylko co moze na stres wplywac? \
 
-INTERNET : Profil psychologiczny tworzą:
- osobowość,
- postawy wobec siebie i innych ludzi, dóbr, problemów, spraw spornych i kontrowersyjnych,
- sposoby myślenia,
- motywy działania,
- wyznawane wartości,
- poczucie przynależności do rodziny, grupy społecznej, zawodowej i kraju,
- stosunek do ryzyka oraz innowacji,
- znaczenie przywiązywane do rodzajów, poziomu i sposobów zaspokajania potrzeb.
+INTERNET : Profil psychologiczny tworzą:\
+1. osobowość,\
+2. postawy wobec siebie i innych ludzi, dóbr, problemów, spraw spornych i kontrowersyjnych,\
+3. sposoby myślenia,\
+4. motywy działania,\
+5. wyznawane wartości,\
+6. poczucie przynależności do rodziny, grupy społecznej, zawodowej i kraju,\
+7. stosunek do ryzyka oraz innowacji,\
+8. znaczenie przywiązywane do rodzajów, poziomu i sposobów zaspokajania potrzeb.\
 
 Co można wziac: \
- - zainteresowanie rodzicow dzieckiem
- - pochodzenie rodzicow
- - zamoznosc
- - latwosc zawierania znajomosci/jak widzi siebie w szkole/itp
- - 
+ - zainteresowanie rodzicow dzieckiem\
+ - pochodzenie rodzicow - Czy urodziles sie w GB? `ST019AQ01T`, Czy twoja mama? `ST019BQ01T`, Czy Twoj tata? `ST019AQ01T`\
+ - zamoznosc - `ESCS` $0$ to średnia, i im bardziej na $+$, tym bogatsi\
+ - latwosc zawierania znajomosci/jak widzi siebie w szkole/itp\
+ - miesiac urodzin `ST003D02T`\
+ 
+ 
+ 
+ 
+ 
+ 

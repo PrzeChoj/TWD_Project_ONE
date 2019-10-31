@@ -51,6 +51,17 @@ procent_sex <- function(nazwa){
   procent_panstw(dane)
 }
 
+srednia_prywatnych <- function(nazwa){
+  # potrzebuje ramki tbl_ciekawe
+  dane <- tbl_ciekawe %>% select("SC013Q01TA", nazwa) %>% filter(!is.na(SC013Q01TA))
+  pryw <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
+  pub <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
+  
+  odp <- c(mean(pryw, na.rm = TRUE), mean(pub, na.rm = TRUE))
+  names(odp) <- c("prywatna", "publiczna")
+  odp
+}
+
 
 
 

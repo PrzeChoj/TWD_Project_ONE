@@ -542,26 +542,40 @@ GBR$ST004D01T.x # 1-dziewczynki, 2-chlopcy
 
 
 
+(GBR %>% filter(!(CNTSTUID.x %>% duplicated)))$ST003D02T %>% table # ile uczniow z ktorego miesiaca
+(GBR %>% filter(!(CNTSTUID.x %>% duplicated)))$ESCS %>% na.omit() %>% mean # srednia zamoznosc
+(GBR %>% filter(!(CNTSTUID.x %>% duplicated)))$ESCS %>% na.omit() %>% var # wariancja zamoznosci
+(GBR %>% filter(!(CNTSTUID.x %>% duplicated)))$ST022Q01TA %>% table
+
+
+# jakie jeszcze tam sa ciekawe rzeczy nieopisane w formularzach?
+nr_wspolnych <- which(tmp_duzy %>% colnames %in% (GBR %>% colnames))
+
+label_wspolnych <- character(length = length(nr_wspolnych))
+names_wspolnych <- (tmp_duzy %>% colnames)[nr_wspolnych]
+
+for( i in 1:length(nr_wspolnych) ){
+  label_wspolnych[i] <- attr(tmp_duzy[[nr_wspolnych[i]]],"label")
+}
+label_wspolnych <- cbind(nr_wspolnych, label_wspolnych, names_wspolnych) %>% tbl_df()
 
 
 
 
 
 
+# urzywanie procent_prywatnych na tbl_ciekawe
+col <- tbl_ciekawe %>% colnames
+tbl_ciekawe[[11]]
 
+# nie rozumiem roznicy miedzy tymi dwoma
+srednia_prywatnych("TMINS") # srednia spedzoneczo czasu na nauce poza szkola w minutach
+srednia_prywatnych("OUTHOURS") # srednia spedzoneczo czasu na nauce poza szkola w sumie
 
-
-
-
-
-
-
-
-
-
-
-
-
+srednia_prywatnych("ST118Q01NA") # trudno bedzie mi pisac test
+srednia_prywatnych(col[9]) # jestem ambitny
+srednia_prywatnych(col[10]) # chce byc najlepszy
+srednia_prywatnych(col[11]) # wole pracowac w grupie
 
 
 

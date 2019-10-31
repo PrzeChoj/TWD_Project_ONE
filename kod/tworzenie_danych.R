@@ -160,9 +160,53 @@ GBR_results <- GBR_results %>% inner_join(map, by="fullregion") # nie bylo orygi
 
 
 
+# jakie jeszcze tam sa ciekawe rzeczy nieopisane w formularzach?
+nr_wspolnych <- which(tmp_duzy %>% colnames %in% (GBR %>% colnames))
+
+label_wspolnych <- character(length = length(nr_wspolnych))
+names_wspolnych <- (tmp_duzy %>% colnames)[nr_wspolnych]
+
+for( i in 1:length(nr_wspolnych) ){
+  label_wspolnych[i] <- attr(tmp_duzy[[nr_wspolnych[i]]],"label")
+}
+label_wspolnych <- cbind(nr_wspolnych, label_wspolnych, names_wspolnych) %>% tbl_df()
+
+# 668, 669-672, 78-80, 86-87, 91-98, 99-104, 116-118, 119-123, 246?, 311, 328-337, 379-390, 391-403, 482-488, 518-519, 604-605, 637, 638
+ciekawe <- label_wspolnych[c(668, 669:672, 78:80, 86:87, 91:98, 99:104, 116:118, 119:123, 311, 328:337, 379:390, 391:403, 482:488, 518:519, 604:605, 637, 638),]
+
+# wesmy tylko ciekawe dane
+tbl_ciekawe <- GBR %>% select(ciekawe$names_wspolnych, sex, region, CNTSTUID.x, CNTSCHID)
+
+# usunmy te kolumny, co maja tylko NA
+czy.na <- logical(length(colnames(tbl_ciekawe)))
+for(i in 1:(length(colnames(tbl_ciekawe))-4)){
+  czy.na[i] <- tbl_ciekawe[,i] %>% is.na %>% all
+  attr(tbl_ciekawe[[i]], "opis") <- ciekawe[[i, 2]]
+}
+
+tbl_ciekawe <- tbl_ciekawe %>% select(which(!czy.na))
 
 
 
+# co ciekawego jest w szkolnych?
+label_szkolny <- character(length = length(colnames(School)))
+names_szkolny <- School %>% colnames
+for( i in 1:length(colnames(School)) ){
+  label_szkolny[i] <- attr(School[[i]],"label")
+}
+# 3, 13:14, 124, 138:139
+index <- 1:273
+names(index) <- "index"
+label_szkolny <- cbind(index, label_szkolny, names_szkolny) %>% tbl_df() %>% filter(index %in% c(3, 13:14, 124, 138:139))
+
+tbl_szkolny <- School %>% tbl_df %>% select(label_szkolny[[3]])
+School$SC013Q01TA # 1-publiczna, 2-prywatna
+
+
+# polaczny tbl_ciekawe z tbl_szkolny
+tbl_szkolny$CNTSCHID <- tbl_szkolny$CNTSCHID %>% as.integer() # to musi byc integer
+tbl_ciekawe <- tbl_ciekawe %>% inner_join(tbl_szkolny, by="CNTSCHID")
+#
 
 
 
