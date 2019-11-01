@@ -566,57 +566,91 @@ label_wspolnych <- cbind(nr_wspolnych, label_wspolnych, names_wspolnych) %>% tbl
 
 # urzywanie procent_prywatnych na tbl_ciekawe
 col <- tbl_ciekawe %>% colnames
-tbl_ciekawe[[11]]
+tbl_ciekawe[[29]]
 
 # nie rozumiem roznicy miedzy tymi dwoma
 srednia_prywatnych("TMINS") # srednia spedzoneczo czasu na nauce poza szkola w minutach
 srednia_prywatnych("OUTHOURS") # srednia spedzoneczo czasu na nauce poza szkola w sumie
 
 srednia_prywatnych("ST118Q01NA") # trudno bedzie mi pisac test
-srednia_prywatnych(col[9]) # jestem ambitny
-srednia_prywatnych(col[10]) # chce byc najlepszy
-srednia_prywatnych(col[11]) # wole pracowac w grupie
+# BARDZO ciekawe
+srednia_prywatnych_porownanie(col[9]) # jestem ambitny
+# BARDZO ciekawe
+srednia_prywatnych_porownanie(col[10]) # chce byc najlepszy
+# ciekawe
+srednia_prywatnych_porownanie(col[11]) # wole pracowac w grupie
+srednia_prywatnych_porownanie(col[12]) # umien sluchac
+srednia_prywatnych_porownanie(col[13]) # lubie widziec sukces moich rowiesnikow
+srednia_prywatnych_porownanie(col[14]) # Biore pod uwage, czym interesuja sie inni
+srednia_prywatnych_porownanie(col[15]) # Grupy podejmuja lepsze decyzje niz jednostki
+srednia_prywatnych_porownanie(col[16]) # Lubie rozmyslac nad roznymi mozliwosciami
+srednia_prywatnych_porownanie(col[17]) # W grupie lepiej mi sie pracuje
+srednia_prywatnych_porownanie(col[18]) # Lubie pracowac w parach
+srednia_prywatnych_porownanie(col[19]) # W szkole czuje sie jak samotnik
 
+# ciekawe
+srednia_prywatnych_porownanie(col[20]) # Latwo zaznajamiam sie
+# ciekawe
+srednia_prywatnych_porownanie(col[21]) # Czuje sie jak czesc szkoly
+srednia_prywatnych_porownanie(col[22]) # Dziwnie cie czuje w szkole
+# ciekawe
+srednia_prywatnych_porownanie(col[23]) # Inni zdaja sie mnie lubic
+# ciekawe
+srednia_prywatnych_porownanie(col[24]) # Czuje sie samotny
+srednia_prywatnych_porownanie(col[25]) # W ostatnich 2 tygodniach zdazalo mi sie nie przyjsc do szkoly
+srednia_prywatnych_porownanie(col[26]) # W ostatnich 2 tygodniach zdazalo mi sie pomijac lekcje
+# BARDZO ciekawe
+srednia_prywatnych_porownanie(col[27]) # W ostatnich 2 tygodniach zdazalo mi sie spozniac do szkoly
+# BARDZO ciekawe
+srednia_prywatnych_porownanie(col[28]) # W roku szkolnym spedzilem okolo () godzin na nauce
+# BARDZO ciekawe
+srednia_prywatnych_porownanie(col[29]) # Jak duzo w tygodniu sie uczylem matematyki
+# BARDZO ciekawe
+srednia_prywatnych_porownanie(col[30]) # Jak duzo w tygodniu sie uczylem jezyka ojczystego -> patrz 36
+# BARDZO ciekawe
+srednia_prywatnych_porownanie(col[31]) # Jak duzo w tygodniu sie uczylem jezyka obcego -> patrz 37
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+srednia_prywatnych_porownanie(col[33]) # Zle mi bez internetu
+srednia_prywatnych_porownanie(col[34]) # Ile tygodniowo zajec z fizyki
+srednia_prywatnych_porownanie(col[35]) # Ile tygodniowo zajec z matematyki
+srednia_prywatnych_porownanie(col[36]) # Ile tygodniowo zajec z jezyka ojczystego
+srednia_prywatnych_porownanie(col[37]) # Ile tygodniowo zajec z jezyka obcego
+srednia_prywatnych_porownanie(col[38]) # Ile tygodniowo zajec z nauk spolecznych
+srednia_prywatnych_porownanie(col[39]) # Ile tygodniowo zajec z muzyki
+srednia_prywatnych_porownanie(col[40]) # Ile tygodniowo zajec z WF-u
+srednia_prywatnych_porownanie(col[41]) # Ile tygodniowo zajec z rysunku
+srednia_prywatnych_porownanie(col[42]) # Ile tygodniowo zajec ze sztuki
+srednia_prywatnych_porownanie(col[44]) # Chodze na korki, bo chce poznawac wiedze # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[45]) # Chodze na korki, bo chce zdac egzamin # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[47]) # Chodze na korki, bo rodzice chcieli # 1-prawda, 0-falsz
+# ARCY ciekawe
+srednia_prywatnych_porownanie(col[48]) # Chodze na korki, bo koledzy tesz chodza # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[49]) # Chodze na korki, bo nauczyciel powiedzial, ze warto # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[50]) # Chodze na korki, bo CHCE miec lapsze oceny # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[51]) # Chodze na korki, bo MUSZE miec lapsze oceny # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[52]) # Chodze na korki, bo uwazam, ze warto sie uczyc # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[53]) # Chodze na korki, bo dobrze to wyglada w CV # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[54]) # Chodze na korki, bo musze dla przyszlej pracy # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[56]) # NIE Chodze na korki, bo nie potrzebuje # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[57]) # NIE Chodze na korki, bo nie pasowaly mi # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[58]) # NIE Chodze na korki, malo moich kolegow chodzi # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[59]) # NIE Chodze na korki, bo niemam na to czasu # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[60]) # NIE Chodze na korki, bo niestac mnie # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[61]) # NIE Chodze na korki, bo moi nauczyciele wysarczajaco mnie ucza # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[62]) # NIE Chodze na korki, bo moi rodzice nie chca # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[63]) # NIE Chodze na korki, bo niejest to warte pieniedzy # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[64]) # NIE Chodze na korki, bo moi nauczyciele mowia, ze nie warto # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[65]) # NIE Chodze na korki, bo niegdy nie myslalem na ten temat # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[66]) # NIE Chodze na korki, bo niejest to mozliwe w mojej okolicy # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[67]) # NIE Chodze na korki, bo rodzina mi pomaga # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[68]) # NIE Chodze na korki, bo koledzy mi pomagaja # 1-prawda, 0-falsz
+srednia_prywatnych_porownanie(col[69]) # Kobieta pomaga mi w nauce # 1-prawda, 2-nie prawda
+srednia_prywatnych_porownanie(col[70]) # Mezczyzna pomaga mi w nauce # 1-prawda, 2-nie prawda
+srednia_prywatnych_porownanie(col[71]) # Rodzenstwo pomaga mi w nauce # 1-prawda, 2-nie prawda
+srednia_prywatnych_porownanie(col[72]) # Dziadkowie pomagaja mi w nauce # 1-prawda, 2-nie prawda
+srednia_prywatnych_porownanie(col[73]) # Dalsi krewni pomagaja mi w nauce # 1-prawda, 2-nie prawda
+srednia_prywatnych_porownanie(col[74]) # Nikt nie pomaga mi w nauce # 1-prawda, 2-nie prawda
+srednia_prywatnych_porownanie(col[76]) # Wiek
 
 
 

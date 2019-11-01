@@ -206,7 +206,14 @@ School$SC013Q01TA # 1-publiczna, 2-prywatna
 # polaczny tbl_ciekawe z tbl_szkolny
 tbl_szkolny$CNTSCHID <- tbl_szkolny$CNTSCHID %>% as.integer() # to musi byc integer
 tbl_ciekawe <- tbl_ciekawe %>% inner_join(tbl_szkolny, by="CNTSCHID")
-#
+
+
+
+# polaczny tbl_ciekawe z tbl_szkolny
+tbl_szkolny$CNTSCHID <- tbl_szkolny$CNTSCHID %>% as.integer() # to musi byc integer
+tbl_ciekawe_POL <- tbl_ciekawe_POL %>% inner_join(tbl_szkolny, by="CNTSCHID") %>% dim()
+
+
 
 
 
