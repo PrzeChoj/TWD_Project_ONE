@@ -53,13 +53,30 @@ procent_sex <- function(nazwa){
 
 srednia_prywatnych <- function(nazwa){
   # potrzebuje ramki tbl_ciekawe
-  dane <- tbl_ciekawe %>% select("SC013Q01TA", nazwa) %>% filter(!is.na(SC013Q01TA))
+  dane <- tbl_ciekawe %>% select("SC013Q01TA", "CNTSTUID.x", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID.x))
   pryw <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
   pub <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
   
   odp <- c(mean(pryw, na.rm = TRUE), mean(pub, na.rm = TRUE))
   names(odp) <- c("prywatna", "publiczna")
   odp
+}
+
+srednia_prywatnych_POL <- function(nazwa){
+  # potrzebuje ramki tbl_ciekawe_POL
+  dane <- tbl_ciekawe_POL %>% select("SC013Q01TA", "CNTSTUID", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID))
+  pryw <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
+  pub <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
+  
+  odp <- c(mean(pryw, na.rm = TRUE), mean(pub, na.rm = TRUE))
+  names(odp) <- c("prywatna", "publiczna")
+  odp
+}
+
+srednia_prywatnych_porownanie <- function(nazwa){
+  out <- rbind(srednia_prywatnych(nazwa), srednia_prywatnych_POL(nazwa))
+  rownames(out) <- c("GBR", "POL")
+  out
 }
 
 
