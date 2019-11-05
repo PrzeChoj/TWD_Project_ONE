@@ -656,7 +656,8 @@ srednia_prywatnych_porownanie(col[76]) # Wiek
 
 col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA") # rozszezony o 4 kolumny
 # ciekawe
-srednia_sponsorowanych_GBR(col_ext[86]) # jak czesto nauczycie tlumaczy na lekcjach: 4-zawsze, 1-prawie nigdy
+srednia_sponsorowanych_GBR(col_ext[86]) # jak czesto nauczycie tlumacza na lekcjach: 4-zawsze, 1-prawie nigdy
+srednia_prywatnych_POL(col_ext[86]) # polsce sporo
 srednia_sponsorowanych_GBR(col_ext[87]) # czy powtarzales klase?
 srednia_sponsorowanych_GBR(col_ext[88]) # jakiej jestes plci
 srednia_sponsorowanych_GBR(col_ext[89]) # moi rodzice interesuja sie jak mi idzie w szkole
@@ -681,7 +682,7 @@ tmp <- tbl_ciekawe_POL_ext %>% select(EC030Q02NA, CNTSTUID) %>% filter(!duplicat
 pomagaPOL[2] <- ifelse(rep(TRUE, times = length(tmp$EC030Q02NA)), tmp$EC030Q02NA-1, NA) %>% mean # w 57% domow w POL mezczyzna pomaga
 names(pomagaGBR) <- c("kobieta", "mezczyzna")
 ktopomaga <- rbind(pomagaGBR, pomagaPOL)
-
+ktopomaga
 
 
 

@@ -64,7 +64,7 @@ srednia_prywatnych <- function(nazwa){
 
 srednia_prywatnych_POL <- function(nazwa){
   # potrzebuje ramki tbl_ciekawe_POL
-  dane <- tbl_ciekawe_POL %>% select("SC013Q01TA", "CNTSTUID", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID))
+  dane <- tbl_ciekawe_POL_ext %>% select("SC013Q01TA", "CNTSTUID", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID))
   pryw <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
   pub <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
   

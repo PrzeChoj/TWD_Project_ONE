@@ -247,4 +247,27 @@ tbl_ciekawe_POL_ext <- tbl_ciekawe_POL %>% inner_join(tmp, by=c("CNTSTUID" = "CN
 tbl_ciekawe_GBR_ext <- tbl_ciekawe_GBR_ext %>% inner_join(GBR_results %>% select(CNTSCHID, type), by=c("CNTSTUID.x"="CNTSCHID"))
 tbl_ciekawe_GBR_ext$type <- ifelse(tbl_ciekawe_GBR_ext$type == "academy", "akademicka", ifelse(tbl_ciekawe_GBR_ext$type == "independent", "niezalezna", "utrzymywana"))
 
+col <- tbl_ciekawe %>% colnames
+col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA") # rozszezony o 4 kolumny
+
+# kobieta/mezczyzna pomaga mi w nauce
+pomagaGBR <- numeric(2)
+pomagaPOL <- numeric(2)
+tmp <- tbl_ciekawe_GBR_ext %>% select(EC030Q01NA, CNTSTUID.x) %>% filter(!duplicated(CNTSTUID.x)) %>% filter(!is.na(EC030Q01NA))
+pomagaGBR[1] <- ifelse(rep(TRUE, times = length(tmp$EC030Q01NA)), tmp$EC030Q01NA-1, NA) %>% mean # w 43% domow w GBR kobieta pomaga
+tmp <- tbl_ciekawe_POL_ext %>% select(EC030Q01NA, CNTSTUID) %>% filter(!duplicated(CNTSTUID)) %>% filter(!is.na(EC030Q01NA))
+pomagaPOL[1] <- ifelse(rep(TRUE, times = length(tmp$EC030Q01NA)), tmp$EC030Q01NA-1, NA) %>% mean # w 40% domow w POL kobieta pomaga
+tmp <- tbl_ciekawe_GBR_ext %>% select(EC030Q02NA, CNTSTUID.x) %>% filter(!duplicated(CNTSTUID.x)) %>% filter(!is.na(EC030Q02NA))
+pomagaGBR[2] <- ifelse(rep(TRUE, times = length(tmp$EC030Q02NA)), tmp$EC030Q02NA-1, NA) %>% mean # w 50% domow w GBR mezczyzna pomaga
+tmp <- tbl_ciekawe_POL_ext %>% select(EC030Q02NA, CNTSTUID) %>% filter(!duplicated(CNTSTUID)) %>% filter(!is.na(EC030Q02NA))
+pomagaPOL[2] <- ifelse(rep(TRUE, times = length(tmp$EC030Q02NA)), tmp$EC030Q02NA-1, NA) %>% mean # w 57% domow w POL mezczyzna pomaga
+names(pomagaGBR) <- c("kobieta", "mezczyzna")
+ktopomaga <- rbind(pomagaGBR, pomagaPOL)
+
+
+
+
+
+
+
 
