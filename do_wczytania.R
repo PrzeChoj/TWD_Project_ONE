@@ -243,7 +243,8 @@ tbl_ciekawe$CNTSTUID.x <- tbl_ciekawe$CNTSTUID.x %>% as.double()
 tbl_ciekawe_GBR_ext <- tbl_ciekawe %>% inner_join(tmp, by=c("CNTSTUID.x" = "CNTSTUID"))
 tbl_ciekawe_POL_ext <- tbl_ciekawe_POL %>% inner_join(tmp, by=c("CNTSTUID" = "CNTSTUID"))
 
-# tbl_ciekawe_GBR_ext$type to info o rodzaju utrzymywania szkoly w GBR: akademicka, nizalezna, utrzymywana:
+# tbl_ciekawe_GBR_ext niema info o rodzaju utrzymywania szkoly w GBR: akademicka, nizalezna, utrzymywana
+tbl_ciekawe_GBR_ext <- tbl_ciekawe_GBR_ext %>% inner_join(GBR_results %>% select(CNTSCHID, type), by=c("CNTSTUID.x"="CNTSCHID"))
 tbl_ciekawe_GBR_ext$type <- ifelse(tbl_ciekawe_GBR_ext$type == "academy", "akademicka", ifelse(tbl_ciekawe_GBR_ext$type == "independent", "niezalezna", "utrzymywana"))
 
 
