@@ -51,6 +51,48 @@ procent_sex <- function(nazwa){
   procent_panstw(dane)
 }
 
+srednia_prywatnych <- function(nazwa){
+  # potrzebuje ramki tbl_ciekawe
+  dane <- tbl_ciekawe %>% select("SC013Q01TA", "CNTSTUID.x", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID.x))
+  pryw <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
+  pub <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
+  
+  odp <- c(mean(pryw, na.rm = TRUE), mean(pub, na.rm = TRUE))
+  names(odp) <- c("prywatna", "publiczna")
+  odp
+}
+
+srednia_prywatnych_POL <- function(nazwa){
+  # potrzebuje ramki tbl_ciekawe_POL
+  dane <- tbl_ciekawe_POL_ext %>% select("SC013Q01TA", "CNTSTUID", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID))
+  pryw <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
+  pub <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
+  
+  odp <- c(mean(pryw, na.rm = TRUE), mean(pub, na.rm = TRUE))
+  names(odp) <- c("prywatna", "publiczna")
+  odp
+}
+
+srednia_prywatnych_porownanie <- function(nazwa){
+  out <- rbind(srednia_prywatnych(nazwa), srednia_prywatnych_POL(nazwa))
+  rownames(out) <- c("GBR", "POL")
+  out
+}
+
+
+# 05.11.19
+srednia_sponsorowanych_GBR <- function(nazwa){
+  # potrzebuje ramki tbl_ciekawe_GBR_ext
+  dane <- tbl_ciekawe_GBR_ext %>% select("type", "CNTSTUID.x", nazwa) %>% filter(!is.na(type)) %>% filter(!duplicated(CNTSTUID.x))
+  akademicka <- (dane %>% filter(type == "akademicka"))[[nazwa]]
+  niezalezna <- (dane %>% filter(type == "niezalezna"))[[nazwa]]
+  utrzymywana <- (dane %>% filter(type == "utrzymywana"))[[nazwa]]
+  
+  odp <- c(mean(akademicka, na.rm = TRUE), mean(niezalezna, na.rm = TRUE), mean(utrzymywana, na.rm = TRUE))
+  names(odp) <- c("akademicka", "niezalezna", "utrzymywana")
+  odp
+}
+
 
 
 

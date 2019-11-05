@@ -1,69 +1,86 @@
-# tworzenie tabelek do pozniejszej analizy
+# kod/wczytanie_danych.R
+library("haven")
 
-
-# procentowa zdawalnosc z podzialem na panstwa i etapy szkolne
-which(colnames(tmp_duzy)=="ST127Q01TA") # 77
-powtarzanie_klasy <- tmp_duzy[c(2, 77, 78, 79)]
-powtarzanie_klasy_podstawowka <- powtarzanie_klasy[c(1, 2)]
-powtarzanie_klasy_gimnazjum <- powtarzanie_klasy[c(1, 3)]
-powtarzanie_klasy_liceum <- powtarzanie_klasy[c(1, 4)]
-
-powtarzanie_klasy_podstawowka <- procent_panstw(powtarzanie_klasy_podstawowka)
-colnames(powtarzanie_klasy_podstawowka) <- c("ONCE", "MORE", "NEVER")
-powtarzanie_klasy_podstawowka <- powtarzanie_klasy_podstawowka %>% tbl_df() %>%
-  mutate(country=rownames(powtarzanie_klasy_podstawowka)) %>% select(country, NEVER, ONCE, MORE)
-
-powtarzanie_klasy_gimnazjum <- procent_panstw(powtarzanie_klasy_gimnazjum)
-colnames(powtarzanie_klasy_gimnazjum) <- c("NEVER", "MORE", "ONCE")
-powtarzanie_klasy_gimnazjum <- powtarzanie_klasy_gimnazjum %>% tbl_df() %>%
-  mutate(country=rownames(powtarzanie_klasy_gimnazjum)) %>% select(country, NEVER, ONCE, MORE)
-
-powtarzanie_klasy_liceum <- procent_panstw(powtarzanie_klasy_liceum)
-colnames(powtarzanie_klasy_liceum) <- c("ONCE", "MORE", "NEVER")
-powtarzanie_klasy_liceum <- powtarzanie_klasy_liceum %>% tbl_df() %>%
-  mutate(country=rownames(powtarzanie_klasy_liceum)) %>% select(country, NEVER, ONCE, MORE)
-
-
-powtarzanie_klasy_merged <- powtarzanie_klasy
-colnames(powtarzanie_klasy_merged) <- c("Country", "P", "G", "L")
-
-suma_oblan <- function(P, G, L){
-  # P G L to wektory
-  # posiadajace 1 jesli osoba nigdy nie oblala
-  # 2 jesli raz i 3 jesli wiecej razy
-  # funkcja laczy je w jeden
-  stopifnot(length(P) == length(G))
-  stopifnot(length(P) == length(L))
+# funkcja do wszystkich danych
+create_data_from_sas_format <- function(dictionary, file) {
+  dane.dic <- file.path(getwd(), "dane")
   
-  # radzenie sobie z NA
-  P <- ifelse(is.na(P), 1, P)
-  G <- ifelse(is.na(G), 1, G)
-  L <- ifelse(is.na(L), 1, L)
+  stopifnot(is.character(dictionary), is.character(file))
   
-  wynik <- integer(length = length(P))
-  
-  jeden <- function(p, g, l){
-    # funkcja przyjmuje 3 argumenty i zwraca prawde gdy
-    # dokladnie jeden z nich ma wartosc 2,
-    # a pozostale 1
-    return (p==2 & g==1 & l==1) | (p==1 & g==2 & l==1) | (p==1 & g==1 & l==2)
-  }
-  
-  ifelse(P==1 & G==1 & L==1, 1, 
-         ifelse(jeden(P, G, L), 2, 3))
+  path <- file.path(dane.dic, dictionary, file)
+  new_data <- read_sas(path)
+  new_data
 }
 
-# NOTE: niektore panstwa nie maja liceum i w nich jest caly wektor NA
-# zamieniam je wiec na 1, bo takiej informacjii potrzebuje
-# forie to w funkcji suma_oblan
-# Poza tym recznie wiec pozbywam sie panstw, ktore nie maja zadnych danych,
-# to jest NOR, JPN i ALB.
-powtarzanie_klasy_merged <- powtarzanie_klasy_merged %>% tbl_df %>% 
-  filter(Country != "NOR" & Country != "JPN" & Country != "ALB") %>%
-  mutate(sum=suma_oblan(P,G,L))
-powtarzanie_klasy_merged <- powtarzanie_klasy_merged[c(1, 5)]
-powtarzanie_klasy_merged <- procent_panstw(powtarzanie_klasy_merged)
-powtarzanie_klasy_merged <- powtarzanie_klasy_merged %>% tbl_df() %>% select(NEVER = 3, ONCE = 1, MORE = 2)
+
+
+
+
+
+# BGR_schools.R
+
+#####
+# skrypt zawiera analize danych poswiecona szkolom w Wielkiej Brytanii
+# glownym zalozeniem jest skupienie sie na podziale szkol ze wzgledu na plcie
+#####
+
+library(dplyr)
+library(data.table)
+library(stringi)
+library(ggplot2)
+library(haven)
+
+## wczytanie danych z pliku zawierajacego znaczenie oznaczen
+
+#kolumna STRATUM zawiera informacje o szkole - country + region + id school
+#bedziemy potrzbowac oznaczen danych z tej kolumny, wiec wczytujemy je z pliku z oznaczeniami
+
+#sciezka do tego pliku
+file <- file.path("dane" ,"PUF_SAS_COMBINED_CMB_SCH_QQQ", "CY6_MS_CMB_SCH_QQQ.sas7bdat.format.sas")
+#poczatek wczytywania danych - od tego nr wiersza zaczyna sie kolumna STRATUM
+first_line <- grep("value \\$STRATUM", readLines(file))
+#szukamy konca wczytywania - w pliku z oznaczeniami koniec kolumny oznaczany jest przez ";"
+tmp <- grep(";", readLines(file))
+end_line <- tmp[tmp > first_line] #to jest nr wiersza posiadajacy ";" po kolumnie statum
+#wczytanie oznaczen
+Labels <- read.table(file,sep = "=", skip=first_line,nrows=(end_line[1]-first_line-1), stringsAsFactors = FALSE) %>% as.data.table()
+colnames(Labels) <- c("STRATUM", "Label")
+#interesuje nas tylko Wielka Brytania, czyli GBR1...
+GBR_schools <- Labels[grep("GBR1", Labels$STRATUM)]
+
+#kolumne Label chcemy podzielic na oddzielne kolumny o jednej informacji
+GBR_Info <- stri_split_fixed(GBR_schools$Label, ",") %>% as.data.table() %>% t()
+rownames(GBR_Info) <- NULL
+colnames(GBR_Info) <- c("region", "type", "subregion", "sex")
+#laczymy DF GBR_Info z GBR_schools - pozwywamy sie kolumny label na rzecz oddzielonych informacji
+GBR_schools <- cbind(GBR_schools[,1], GBR_Info)
+
+head(GBR_schools, 50)
+
+##obrobmy troche te DF
+#okazuje sie ze po id pojawia sie spacja, wiec usuwamy ja juz recznie
+GBR_schools$STRATUM <- GBR_schools$STRATUM %>% substr(1, 7)
+#z regionu obchodzi nas jedynie sama nazwa, wiec poprawiwamy to
+GBR_schools$region <- stri_extract_all(GBR_schools$region, regex="(?<=: ).*") %>% unlist()
+#w typie szkol przy plci obchodzi nas jedynie pierwsze slowo
+GBR_schools$sex <- stri_extract_first_words(GBR_schools$sex)
+
+## analiza przy wykorzystaniu uzyskanych powyzej danych
+
+#wczytujemy plik z danymi z kwestionariusza o uczniach
+Student <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_STU_QQQ", "cy6_ms_cmb_stu_qqq.sas7bdat") %>% as.data.table()
+
+#CNTSCHID zawiera id szkoly $3$
+#CNTSTUID zawiera id ucznia $4$
+#ST004D01T zawiera info o plci
+#STRATUM $8$
+#PV[1-10][przedmiot] dane o wynikach - nas interesuje jedynie PV1 z kazdego przedmiotu
+tmp <- Student[, .(CNTSCHID, CNTSTUID, ST004D01T, STRATUM, PV1MATH, PV1READ, PV1SCIE)]
+
+setkey(tmp, STRATUM)
+setkey(GBR_schools, STRATUM)
+GBR_results <- tmp[GBR_schools]
+GBR_results <- GBR_results[which(!(GBR_results$CNTSCHID %>% is.na)), ]
 
 
 
@@ -71,34 +88,24 @@ powtarzanie_klasy_merged <- powtarzanie_klasy_merged %>% tbl_df() %>% select(NEV
 
 
 
-# posiadanie biurka
-tbl <- procent_panstw(tmp_duzy[c(2,which(colnames(tmp_duzy)=="ST011Q01TA"))])
-panstwa <- rownames(tbl)
-colnames(tbl) <- c("YES", "NO")
-tbl <- tbl %>% tbl_df() %>% mutate(country=panstwa)
-
-tmp <- tbl %>% arrange(YES)
-index <- which(tmp$country=="POL")
-tmp[index,]
-tmp %>% tail(20) # Polska jest w pierwszej 20 z 71 na temat posiadania biurka w domu przez uczniow
-
-plot(tmp[[1]])
-points(56, tmp[56, 1], pch=16, col="RED") # Polska
-
-
-
-# tworzenie tabelki z wielka brytania(potrzebne wykonanie skryptu BGR_schools.R)
-tmp_GBR <- tmp_duzy %>% filter(CNT == "GBR")
-GBR <- inner_join(tmp_GBR, GBR_results, by="CNTSCHID")
+# skrypty
+source(file = file.path("/Users", "dtgt", "Desktop", "programiki", "R", "projekty", "1", "PISA", "kod", "skrypty.R"))
 
 
 
 
-# pogoda
-# nie bylo oryginalnie zrobione i dodane do GBR.csv!
-GBR_results$region %>% unique()
-GBR_results$subregion %>% unique()
 
+# wczytanie_danych.R
+
+# potrzebne:
+# GBR
+# GBR_results
+
+# wczytanie:
+GBR.path <- file.path(getwd(), "dane", "GBR.csv")
+GBR <- read.csv(GBR.path)
+
+# pierwsza czesc
 GBR_results$fullregion <- paste(GBR_results$region, GBR_results$subregion)
 map <- cbind(GBR_results$fullregion %>% unique, rep(0, times=12), rep(0, times=12))
 colnames(map) <- c("fullregion", "rainregion", "deszcz")
@@ -120,7 +127,7 @@ map[12,2] <- "South West England & Wales"
 
 url <- "https://www.metoffice.gov.uk/hadobs/hadukp/data/download.html"
 strona <- readLines(url)
-map[,2] %>% unique # takich szukam
+# map[,2] %>% unique # takich szukam
 indexy_danych <- which(!(strona %>% stri_extract_all_regex("seasonal/") %>% unlist %>% is.na()))
 
 pattern <- map[,2] %>% unique() %>% paste(collapse = "|")
@@ -151,16 +158,22 @@ map[12,3] <- deszcz[2]
 
 map <- map %>% tbl_df
 GBR_results <- GBR_results %>% inner_join(map, by="fullregion") # nie bylo oryginalnie zrobione i dodane do GBR.csv!
+
 #
 
 
 
+# druga czesc
+GBR$fullregion <- paste(GBR$region, GBR$subregion, sep=" ")
+GBR <- GBR %>% inner_join(map, by="fullregion")
 
 
 
 
 
+# tworzenie_danych.R
 # jakie jeszcze tam sa ciekawe rzeczy nieopisane w formularzach?
+tmp_duzy <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_STU_QQQ", "cy6_ms_cmb_stu_qqq.sas7bdat") # 519334x921
 nr_wspolnych <- which(tmp_duzy %>% colnames %in% (GBR %>% colnames))
 
 label_wspolnych <- character(length = length(nr_wspolnych))
@@ -189,6 +202,7 @@ tbl_ciekawe <- tbl_ciekawe %>% select(which(!czy.na))
 
 
 # co ciekawego jest w szkolnych?
+School <- create_data_from_sas_format("PUF_SAS_COMBINED_CMB_SCH_QQQ", "cy6_ms_cmb_sch_qqq.sas7bdat") %>% as.data.table()
 label_szkolny <- character(length = length(colnames(School)))
 names_szkolny <- School %>% colnames
 for( i in 1:length(colnames(School)) ){
@@ -200,19 +214,22 @@ names(index) <- "index"
 label_szkolny <- cbind(index, label_szkolny, names_szkolny) %>% tbl_df() %>% filter(index %in% c(3, 13:14, 124, 138:139))
 
 tbl_szkolny <- School %>% tbl_df %>% select(label_szkolny[[3]])
-School$SC013Q01TA # 1-publiczna, 2-prywatna
+# School$SC013Q01TA # 1-publiczna, 2-prywatna
 
 
 # polaczny tbl_ciekawe z tbl_szkolny
 tbl_szkolny$CNTSCHID <- tbl_szkolny$CNTSCHID %>% as.integer() # to musi byc integer
 tbl_ciekawe <- tbl_ciekawe %>% inner_join(tbl_szkolny, by="CNTSCHID")
+#
 
 
 
+
+# POL
+POL <- tmp_duzy %>% filter(CNT == "POL") %>% select(ciekawe$names_wspolnych, CNTSTUID, CNTSCHID)
 # polaczny tbl_ciekawe z tbl_szkolny
 tbl_szkolny$CNTSCHID <- tbl_szkolny$CNTSCHID %>% as.integer() # to musi byc integer
-tbl_ciekawe_POL <- tbl_ciekawe_POL %>% inner_join(tbl_szkolny, by="CNTSCHID")
-
+tbl_ciekawe_POL <- POL %>% inner_join(tbl_szkolny, by="CNTSCHID")
 
 
 
@@ -226,11 +243,12 @@ tbl_ciekawe$CNTSTUID.x <- tbl_ciekawe$CNTSTUID.x %>% as.double()
 tbl_ciekawe_GBR_ext <- tbl_ciekawe %>% inner_join(tmp, by=c("CNTSTUID.x" = "CNTSTUID"))
 tbl_ciekawe_POL_ext <- tbl_ciekawe_POL %>% inner_join(tmp, by=c("CNTSTUID" = "CNTSTUID"))
 
-# tbl_ciekawe_GBR_ext$type to info o rodzaju utrzymywania szkoly w GBR: akademicka, nizalezna, utrzymywana:
+# tbl_ciekawe_GBR_ext niema info o rodzaju utrzymywania szkoly w GBR: akademicka, nizalezna, utrzymywana
+tbl_ciekawe_GBR_ext <- tbl_ciekawe_GBR_ext %>% inner_join(GBR_results %>% select(CNTSCHID, type), by=c("CNTSTUID.x"="CNTSCHID"))
 tbl_ciekawe_GBR_ext$type <- ifelse(tbl_ciekawe_GBR_ext$type == "academy", "akademicka", ifelse(tbl_ciekawe_GBR_ext$type == "independent", "niezalezna", "utrzymywana"))
 
-
-
+col <- tbl_ciekawe %>% colnames
+col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA") # rozszezony o 4 kolumny
 
 # kobieta/mezczyzna pomaga mi w nauce
 pomagaGBR <- numeric(2)
@@ -245,9 +263,6 @@ tmp <- tbl_ciekawe_POL_ext %>% select(EC030Q02NA, CNTSTUID) %>% filter(!duplicat
 pomagaPOL[2] <- ifelse(rep(TRUE, times = length(tmp$EC030Q02NA)), tmp$EC030Q02NA-1, NA) %>% mean # w 57% domow w POL mezczyzna pomaga
 names(pomagaGBR) <- c("kobieta", "mezczyzna")
 ktopomaga <- rbind(pomagaGBR, pomagaPOL)
-
-
-
 
 
 
