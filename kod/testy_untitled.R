@@ -597,10 +597,10 @@ srednia_prywatnych_porownanie(col[22]) # Dziwnie cie czuje w szkole
 srednia_prywatnych_porownanie(col[23]) # Inni zdaja sie mnie lubic
 # ciekawe
 srednia_prywatnych_porownanie(col[24]) # Czuje sie samotny
-srednia_prywatnych_porownanie(col[25]) # W ostatnich 2 tygodniach zdazalo mi sie nie przyjsc do szkoly
-srednia_prywatnych_porownanie(col[26]) # W ostatnich 2 tygodniach zdazalo mi sie pomijac lekcje
+srednia_prywatnych_porownanie(col[25]) # W ostatnich 2 tygodniach zdazalo mi sie nie przyjsc do szkoly(trzeba odjac jeden)
+srednia_prywatnych_porownanie(col[26]) # W ostatnich 2 tygodniach zdazalo mi sie pomijac lekcje(trzeba odjac jeden)
 # BARDZO ciekawe
-srednia_prywatnych_porownanie(col[27]) # W ostatnich 2 tygodniach zdazalo mi sie spozniac do szkoly
+srednia_prywatnych_porownanie(col[27]) # W ostatnich 2 tygodniach zdazalo mi sie spozniac do szkoly(trzeba odjac jeden)
 # BARDZO ciekawe
 srednia_prywatnych_porownanie(col[28]) # W roku szkolnym spedzilem okolo () godzin na nauce
 # BARDZO ciekawe
@@ -652,6 +652,35 @@ srednia_prywatnych_porownanie(col[73]) # Dalsi krewni pomagaja mi w nauce # 1-pr
 srednia_prywatnych_porownanie(col[74]) # Nikt nie pomaga mi w nauce # 1-prawda, 2-nie prawda
 srednia_prywatnych_porownanie(col[76]) # Wiek
 
+
+
+col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA") # rozszezony o 4 kolumny
+# ciekawe
+srednia_sponsorowanych_GBR(col_ext[86]) # jak czesto nauczycie tlumaczy na lekcjach: 4-zawsze, 1-prawie nigdy
+srednia_sponsorowanych_GBR(col_ext[87]) # czy powtarzales klase?
+srednia_sponsorowanych_GBR(col_ext[88]) # jakiej jestes plci
+srednia_sponsorowanych_GBR(col_ext[89]) # moi rodzice interesuja sie jak mi idzie w szkole
+
+
+
+
+
+srednia_sponsorowanych_GBR(col_ext[76])
+
+
+# kobieta/mezczyzna pomaga mi w nauce
+pomagaGBR <- numeric(2)
+pomagaPOL <- numeric(2)
+tmp <- tbl_ciekawe_GBR_ext %>% select(EC030Q01NA, CNTSTUID.x) %>% filter(!duplicated(CNTSTUID.x)) %>% filter(!is.na(EC030Q01NA))
+pomagaGBR[1] <- ifelse(rep(TRUE, times = length(tmp$EC030Q01NA)), tmp$EC030Q01NA-1, NA) %>% mean # w 43% domow w GBR kobieta pomaga
+tmp <- tbl_ciekawe_POL_ext %>% select(EC030Q01NA, CNTSTUID) %>% filter(!duplicated(CNTSTUID)) %>% filter(!is.na(EC030Q01NA))
+pomagaPOL[1] <- ifelse(rep(TRUE, times = length(tmp$EC030Q01NA)), tmp$EC030Q01NA-1, NA) %>% mean # w 40% domow w POL kobieta pomaga
+tmp <- tbl_ciekawe_GBR_ext %>% select(EC030Q02NA, CNTSTUID.x) %>% filter(!duplicated(CNTSTUID.x)) %>% filter(!is.na(EC030Q02NA))
+pomagaGBR[2] <- ifelse(rep(TRUE, times = length(tmp$EC030Q02NA)), tmp$EC030Q02NA-1, NA) %>% mean # w 50% domow w GBR mezczyzna pomaga
+tmp <- tbl_ciekawe_POL_ext %>% select(EC030Q02NA, CNTSTUID) %>% filter(!duplicated(CNTSTUID)) %>% filter(!is.na(EC030Q02NA))
+pomagaPOL[2] <- ifelse(rep(TRUE, times = length(tmp$EC030Q02NA)), tmp$EC030Q02NA-1, NA) %>% mean # w 57% domow w POL mezczyzna pomaga
+names(pomagaGBR) <- c("kobieta", "mezczyzna")
+ktopomaga <- rbind(pomagaGBR, pomagaPOL)
 
 
 

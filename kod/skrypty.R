@@ -80,6 +80,20 @@ srednia_prywatnych_porownanie <- function(nazwa){
 }
 
 
+# 05.11.19
+srednia_sponsorowanych_GBR <- function(nazwa){
+  # potrzebuje ramki tbl_ciekawe_GBR_ext
+  dane <- tbl_ciekawe_GBR_ext %>% select("type", "CNTSTUID.x", nazwa) %>% filter(!is.na(type)) %>% filter(!duplicated(CNTSTUID.x))
+  akademicka <- (dane %>% filter(type == "akademicka"))[[nazwa]]
+  niezalezna <- (dane %>% filter(type == "niezalezna"))[[nazwa]]
+  utrzymywana <- (dane %>% filter(type == "utrzymywana"))[[nazwa]]
+  
+  odp <- c(mean(akademicka, na.rm = TRUE), mean(niezalezna, na.rm = TRUE), mean(utrzymywana, na.rm = TRUE))
+  names(odp) <- c("akademicka", "niezalezna", "utrzymywana")
+  odp
+}
+
+
 
 
 do_plota <- function(dt, kolumny=TRUE){
