@@ -136,7 +136,22 @@ do_plota <- function(dt, kolumny=TRUE){
 }
 
 
-
+wykres_korkow <- function(n){
+  name <- attr(tmp_duzy[[col_ext[n]]], "label")
+  title <- name %>% substr(1, 10)
+  subtitle <- name %>% substr(60, nchar(name))
+  
+  data <- do_plota(srednia_prywatnych_porownanie(col_ext[n]))
+  data$wyniki <- data$dane
+  data$nazwa <- paste(as.character(data$wyniki * 100), "%", sep="")
+  
+  ggplot(data, aes(x=wiersze, fill=kolumny)) +
+    geom_bar(stat="identity", aes(y=wyniki), position=position_dodge(), colour=NA) +
+    geom_text(aes(label = nazwa, y=wyniki-0.02, fontface="bold"),
+              position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
+    #geom_text(y=0, label=name, size = 5, theta = 10)
+    labs(title = title, subtitle = subtitle)
+}
 
 
 

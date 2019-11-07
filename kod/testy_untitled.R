@@ -675,4 +675,44 @@ srednia_sponsorowanych_GBR(col_ext[76])
 
 
 
+# wykresy korkow
+# 44:55, 56:68
+# ciekawe: 47, 48, 49, 50, 53, 54, 58, 60, 61, 63, 66
+wykres_korkow(68)
+
+# tabelka dla ciekawych
+ciekawe_korki <- col_ext[c(47, 48, 49, 50)] #, 53, 54, 58, 60, 61, 63, 66)]
+data <- do_plota(srednia_prywatnych_porownanie(ciekawe_korki[1]))
+
+name <- attr(tmp_duzy[[ciekawe_korki[1]]], "label")
+title <- name %>% substr(1, 10)
+subtitle <- name %>% substr(60, nchar(name))
+nazwa <- paste(title, subtitle, sep="->")
+data$oryginalna_nazwa <- rep(nazwa, 4)
+
+for(i in 2:length(ciekawe_korki)){
+  d <- do_plota(srednia_prywatnych_porownanie(ciekawe_korki[i]))
+  
+  
+  name <- attr(tmp_duzy[[ciekawe_korki[i]]], "label")
+  title <- name %>% substr(1, 10)
+  subtitle <- name %>% substr(60, nchar(name))
+  nazwa <- paste(title, subtitle, sep="->")
+  d$oryginalna_nazwa <- rep(nazwa, 4)
+  
+  
+  data <- rbind(data, d)
+} # data idzie do wykresu
+
+ggplot(data, aes(x=wiersze, fill=kolumny)) +
+  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour=NA) +
+  geom_text(aes(label = dane, y=dane-0.02, fontface="bold"),
+            position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
+  facet_wrap(~ oryginalna_nazwa, scales = "free", ncol=1)
+
+
+
+
+
+
 
