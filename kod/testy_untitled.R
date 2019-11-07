@@ -654,38 +654,61 @@ srednia_prywatnych_porownanie(col[76]) # Wiek
 
 
 
-col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA") # rozszezony o 4 kolumny
+
 # ciekawe
 srednia_sponsorowanych_GBR(col_ext[86]) # jak czesto nauczycie tlumacza na lekcjach: 4-zawsze, 1-prawie nigdy
-srednia_prywatnych_POL(col_ext[86]) # polsce sporo
+srednia_prywatnych_porownanie(col_ext[86]) # polsce sporo
 srednia_sponsorowanych_GBR(col_ext[87]) # czy powtarzales klase?
-srednia_sponsorowanych_GBR(col_ext[88]) # jakiej jestes plci
+srednia_prywatnych_porownanie(col_ext[87]) # nieciekawe
 srednia_sponsorowanych_GBR(col_ext[89]) # moi rodzice interesuja sie jak mi idzie w szkole
-
-
-
+srednia_prywatnych_porownanie(col_ext[89]) # nieciekawe
+srednia_sponsorowanych_GBR(col_ext[90]) # zarobki
+srednia_prywatnych_porownanie(col_ext[90]) # Super ciekawe
+srednia_sponsorowanych_GBR(col_ext[91]) # zarobki2
+srednia_prywatnych_porownanie(col_ext[91]) # Super ciekawe
 
 
 srednia_sponsorowanych_GBR(col_ext[76])
 
 
-# kobieta/mezczyzna pomaga mi w nauce
-pomagaGBR <- numeric(2)
-pomagaPOL <- numeric(2)
-tmp <- tbl_ciekawe_GBR_ext %>% select(EC030Q01NA, CNTSTUID.x) %>% filter(!duplicated(CNTSTUID.x)) %>% filter(!is.na(EC030Q01NA))
-pomagaGBR[1] <- ifelse(rep(TRUE, times = length(tmp$EC030Q01NA)), tmp$EC030Q01NA-1, NA) %>% mean # w 43% domow w GBR kobieta pomaga
-tmp <- tbl_ciekawe_POL_ext %>% select(EC030Q01NA, CNTSTUID) %>% filter(!duplicated(CNTSTUID)) %>% filter(!is.na(EC030Q01NA))
-pomagaPOL[1] <- ifelse(rep(TRUE, times = length(tmp$EC030Q01NA)), tmp$EC030Q01NA-1, NA) %>% mean # w 40% domow w POL kobieta pomaga
-tmp <- tbl_ciekawe_GBR_ext %>% select(EC030Q02NA, CNTSTUID.x) %>% filter(!duplicated(CNTSTUID.x)) %>% filter(!is.na(EC030Q02NA))
-pomagaGBR[2] <- ifelse(rep(TRUE, times = length(tmp$EC030Q02NA)), tmp$EC030Q02NA-1, NA) %>% mean # w 50% domow w GBR mezczyzna pomaga
-tmp <- tbl_ciekawe_POL_ext %>% select(EC030Q02NA, CNTSTUID) %>% filter(!duplicated(CNTSTUID)) %>% filter(!is.na(EC030Q02NA))
-pomagaPOL[2] <- ifelse(rep(TRUE, times = length(tmp$EC030Q02NA)), tmp$EC030Q02NA-1, NA) %>% mean # w 57% domow w POL mezczyzna pomaga
-names(pomagaGBR) <- c("kobieta", "mezczyzna")
-ktopomaga <- rbind(pomagaGBR, pomagaPOL)
-ktopomaga
 
 
 
+
+# wykresy korkow
+# 44:55, 56:68
+# ciekawe: 47, 48, 49, 50, 53, 54, 58, 60, 61, 63, 66
+wykres_korkow(68)
+
+# tabelka dla ciekawych
+ciekawe_korki <- col_ext[c(47, 48, 49, 50)] #, 53, 54, 58, 60, 61, 63, 66)]
+data <- do_plota(srednia_prywatnych_porownanie(ciekawe_korki[1]))
+
+name <- attr(tmp_duzy[[ciekawe_korki[1]]], "label")
+title <- name %>% substr(1, 10)
+subtitle <- name %>% substr(60, nchar(name))
+nazwa <- paste(title, subtitle, sep="->")
+data$oryginalna_nazwa <- rep(nazwa, 4)
+
+for(i in 2:length(ciekawe_korki)){
+  d <- do_plota(srednia_prywatnych_porownanie(ciekawe_korki[i]))
+  
+  
+  name <- attr(tmp_duzy[[ciekawe_korki[i]]], "label")
+  title <- name %>% substr(1, 10)
+  subtitle <- name %>% substr(60, nchar(name))
+  nazwa <- paste(title, subtitle, sep="->")
+  d$oryginalna_nazwa <- rep(nazwa, 4)
+  
+  
+  data <- rbind(data, d)
+} # data idzie do wykresu
+
+ggplot(data, aes(x=wiersze, fill=kolumny)) +
+  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour=NA) +
+  geom_text(aes(label = dane, y=dane-0.02, fontface="bold"),
+            position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
+  facet_wrap(~ oryginalna_nazwa, scales = "free", ncol=1)
 
 
 
