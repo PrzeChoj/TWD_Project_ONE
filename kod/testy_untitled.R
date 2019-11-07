@@ -654,20 +654,18 @@ srednia_prywatnych_porownanie(col[76]) # Wiek
 
 
 
-col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA") # rozszezony o 4 kolumny
+
 # ciekawe
 srednia_sponsorowanych_GBR(col_ext[86]) # jak czesto nauczycie tlumacza na lekcjach: 4-zawsze, 1-prawie nigdy
-srednia_prywatnych_POL(col_ext[86]) # polsce sporo
+srednia_prywatnych_porownanie(col_ext[86]) # polsce sporo
 srednia_sponsorowanych_GBR(col_ext[87]) # czy powtarzales klase?
-srednia_prywatnych_POL(col_ext[87]) # nieciekawe
-srednia_sponsorowanych_GBR(col_ext[88]) # jakiej jestes plci
-srednia_prywatnych_POL(col_ext[88]) # nieciekawe
+srednia_prywatnych_porownanie(col_ext[87]) # nieciekawe
 srednia_sponsorowanych_GBR(col_ext[89]) # moi rodzice interesuja sie jak mi idzie w szkole
-srednia_prywatnych_POL(col_ext[89]) # nieciekawe
-
+srednia_prywatnych_porownanie(col_ext[89]) # nieciekawe
 srednia_sponsorowanych_GBR(col_ext[90]) # zarobki
-srednia_prywatnych_POL(col_ext[90]) # Super ciekawe
-srednia_prywatnych_porownanie(col_ext[90])
+srednia_prywatnych_porownanie(col_ext[90]) # Super ciekawe
+srednia_sponsorowanych_GBR(col_ext[91]) # zarobki2
+srednia_prywatnych_porownanie(col_ext[91]) # Super ciekawe
 
 
 srednia_sponsorowanych_GBR(col_ext[76])

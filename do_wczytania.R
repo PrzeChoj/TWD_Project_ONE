@@ -228,7 +228,7 @@ tbl_ciekawe <- tbl_ciekawe %>% inner_join(tbl_szkolny, by="CNTSCHID")
 # POL
 POL <- tmp_duzy %>% filter(CNT == "POL") %>% select(ciekawe$names_wspolnych, CNTSTUID, CNTSCHID)
 # polaczny tbl_ciekawe z tbl_szkolny
-tbl_szkolny$CNTSCHID <- tbl_szkolny$CNTSCHID %>% as.integer() # to musi byc integer
+POL$CNTSCHID <- POL$CNTSCHID %>% as.double() # to musi byc double
 tbl_ciekawe_POL <- POL %>% inner_join(tbl_szkolny, by="CNTSCHID")
 
 
@@ -236,19 +236,45 @@ tbl_ciekawe_POL <- POL %>% inner_join(tbl_szkolny, by="CNTSCHID")
 
 
 
-# jeszcze wieksza ramka 05.11.19
-tmp <- tmp_duzy %>% select(CNTSTUID, ST103Q01NA, ST127Q01TA, ST004D01T, ST123Q01NA, ESCS)
-
-tbl_ciekawe$CNTSTUID.x <- tbl_ciekawe$CNTSTUID.x %>% as.double()
-tbl_ciekawe_GBR_ext <- tbl_ciekawe %>% inner_join(tmp, by=c("CNTSTUID.x" = "CNTSTUID"))
-tbl_ciekawe_POL_ext <- tbl_ciekawe_POL %>% inner_join(tmp, by=c("CNTSTUID" = "CNTSTUID"))
-
-# tbl_ciekawe_GBR_ext niema info o rodzaju utrzymywania szkoly w GBR: akademicka, nizalezna, utrzymywana
-tbl_ciekawe_GBR_ext <- tbl_ciekawe_GBR_ext %>% inner_join(GBR_results %>% select(CNTSCHID, type), by=c("CNTSTUID.x"="CNTSCHID"))
-tbl_ciekawe_GBR_ext$type <- ifelse(tbl_ciekawe_GBR_ext$type == "academy", "akademicka", ifelse(tbl_ciekawe_GBR_ext$type == "independent", "niezalezna", "utrzymywana"))
-
+# jeszcze wieksza ramka 05.11.19 + poprawka 7.11.19
 col <- tbl_ciekawe %>% colnames
-col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA", "ESCS") # rozszezony o 4 kolumny
+col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA", "ESCS", "WEALTH") # rozszezony o 5 kolumn
+# zamienie kolejnosc joina: najpierw GBR_results z tbl_ciekawe. Potem z tmp
+tmp <- tmp_duzy %>% select(CNTSTUID, ST103Q01NA, ST127Q01TA, ST004D01T, ST123Q01NA, ESCS, WEALTH)
+
+tbl_ciekawe$CNTSCHID <- as.double(tbl_ciekawe$CNTSCHID)
+tmp_ciekawe <- tbl_ciekawe %>% full_join(GBR_results, by="CNTSCHID") %>% filter(!duplicated(CNTSTUID))
+# czy tmp_ciekawe jest ok? Tak jest ok
+# polaczmy wiec z tmp
+tbl_ciekawe_GBR_ext <- tmp_ciekawe %>% inner_join(tmp, by="CNTSTUID")
+
+# dodatkowe info:
+# "Mantained" to tylko publiczne, "mantained not selective" tylko publiczne,
+# "mantained selective" to i publiczne i prywatne
+# akademie to publiczne
+tbl_ciekawe_GBR_ext$SC013Q01TA <- ifelse(tbl_ciekawe_GBR_ext$type=="Maintained", 1, tbl_ciekawe_GBR_ext$SC013Q01TA)
+tbl_ciekawe_GBR_ext$SC013Q01TA <- ifelse(tbl_ciekawe_GBR_ext$type=="maintained non-selective", 1, tbl_ciekawe_GBR_ext$SC013Q01TA)
+tbl_ciekawe_GBR_ext$SC013Q01TA <- ifelse(tbl_ciekawe_GBR_ext$type=="academy", 2, tbl_ciekawe_GBR_ext$SC013Q01TA)
+
+tbl_ciekawe_GBR_ext$type <- ifelse(tbl_ciekawe_GBR_ext$type == "academy", "akademicka", ifelse(tbl_ciekawe_GBR_ext$type == "independent", "niezalezna", "utrzymywana"))
+# czy tbl_ciekawe_GBR_ext jest ok? tak jest ok
+tbl_ciekawe_POL_ext <- tbl_ciekawe_POL %>% inner_join(tmp, by=c("CNTSTUID" = "CNTSTUID"))
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # kobieta/mezczyzna pomaga mi w nauce
 pomagaGBR <- numeric(2)
