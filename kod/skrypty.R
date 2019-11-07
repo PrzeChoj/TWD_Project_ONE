@@ -53,23 +53,23 @@ procent_sex <- function(nazwa){
 
 srednia_prywatnych <- function(nazwa){
   # potrzebuje ramki tbl_ciekawe
-  dane <- tbl_ciekawe %>% select("SC013Q01TA", "CNTSTUID.x", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID.x))
-  pryw <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
-  pub <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
+  dane <- tbl_ciekawe_GBR_ext %>% select("SC013Q01TA", "CNTSTUID.x", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID.x))
+  pub <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
+  pryw <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
   
-  odp <- c(mean(pryw, na.rm = TRUE), mean(pub, na.rm = TRUE))
-  names(odp) <- c("prywatna", "publiczna")
+  odp <- c(mean(pub, na.rm = TRUE), mean(pryw, na.rm = TRUE))
+  names(odp) <- c("publiczna", "prywatna")
   odp
 }
 
 srednia_prywatnych_POL <- function(nazwa){
   # potrzebuje ramki tbl_ciekawe_POL
   dane <- tbl_ciekawe_POL_ext %>% select("SC013Q01TA", "CNTSTUID", nazwa) %>% filter(!is.na(SC013Q01TA)) %>% filter(!duplicated(CNTSTUID))
-  pryw <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
-  pub <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
+  pub <- (dane %>% filter(SC013Q01TA == 1))[[nazwa]]
+  pryw <- (dane %>% filter(SC013Q01TA == 2))[[nazwa]]
   
-  odp <- c(mean(pryw, na.rm = TRUE), mean(pub, na.rm = TRUE))
-  names(odp) <- c("prywatna", "publiczna")
+  odp <- c(mean(pub, na.rm = TRUE), mean(pryw, na.rm = TRUE))
+  names(odp) <- c("publiczna", "prywatna")
   odp
 }
 

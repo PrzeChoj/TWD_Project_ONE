@@ -237,7 +237,7 @@ tbl_ciekawe_POL <- POL %>% inner_join(tbl_szkolny, by="CNTSCHID")
 
 
 # jeszcze wieksza ramka 05.11.19
-tmp <- tmp_duzy %>% select(CNTSTUID, ST103Q01NA, ST127Q01TA, ST004D01T, ST123Q01NA)
+tmp <- tmp_duzy %>% select(CNTSTUID, ST103Q01NA, ST127Q01TA, ST004D01T, ST123Q01NA, ESCS)
 
 tbl_ciekawe$CNTSTUID.x <- tbl_ciekawe$CNTSTUID.x %>% as.double()
 tbl_ciekawe_GBR_ext <- tbl_ciekawe %>% inner_join(tmp, by=c("CNTSTUID.x" = "CNTSTUID"))
@@ -248,7 +248,7 @@ tbl_ciekawe_GBR_ext <- tbl_ciekawe_GBR_ext %>% inner_join(GBR_results %>% select
 tbl_ciekawe_GBR_ext$type <- ifelse(tbl_ciekawe_GBR_ext$type == "academy", "akademicka", ifelse(tbl_ciekawe_GBR_ext$type == "independent", "niezalezna", "utrzymywana"))
 
 col <- tbl_ciekawe %>% colnames
-col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA") # rozszezony o 4 kolumny
+col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA", "ESCS") # rozszezony o 4 kolumny
 
 # kobieta/mezczyzna pomaga mi w nauce
 pomagaGBR <- numeric(2)
