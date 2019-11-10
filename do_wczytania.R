@@ -1,5 +1,6 @@
 # kod/wczytanie_danych.R
 library("haven")
+library("stringr")
 
 # funkcja do wszystkich danych
 create_data_from_sas_format <- function(dictionary, file) {
@@ -236,11 +237,11 @@ tbl_ciekawe_POL <- POL %>% inner_join(tbl_szkolny, by="CNTSCHID")
 
 
 
-# jeszcze wieksza ramka 05.11.19 + poprawka 7.11.19
+# jeszcze wieksza ramka 05.11.19 + poprawka 7.11.19 + dodatek 10.11.19
 col <- tbl_ciekawe %>% colnames
-col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA", "ESCS", "WEALTH") # rozszezony o 5 kolumn
+col_ext <- c(col, "ST103Q01NA", "ST127Q01TA", "ST004D01T", "ST123Q01NA", "ESCS", "WEALTH", "EC028Q01NA", "EC028Q02NA", "EC028Q03NA", "ADDSUM") # rozszezony o 5 kolumn i 3 o chodzeniu na korki
 # zamienie kolejnosc joina: najpierw GBR_results z tbl_ciekawe. Potem z tmp
-tmp <- tmp_duzy %>% select(CNTSTUID, ST103Q01NA, ST127Q01TA, ST004D01T, ST123Q01NA, ESCS, WEALTH)
+tmp <- tmp_duzy %>% select(CNTSTUID, ST103Q01NA, ST127Q01TA, ST004D01T, ST123Q01NA, ESCS, WEALTH, EC028Q01NA, EC028Q02NA, EC028Q03NA)
 
 tbl_ciekawe$CNTSCHID <- as.double(tbl_ciekawe$CNTSCHID)
 tmp_ciekawe <- tbl_ciekawe %>% full_join(GBR_results, by="CNTSCHID") %>% filter(!duplicated(CNTSTUID))
@@ -262,7 +263,9 @@ tbl_ciekawe_POL_ext <- tbl_ciekawe_POL %>% inner_join(tmp, by=c("CNTSTUID" = "CN
 #
 
 
-
+# dodanie kolumny ADDSUM informujacej o dodatkowych(ADDitional)(pozalekcyjnych) zajeciach
+tbl_ciekawe_GBR_ext <- tbl_ciekawe_GBR_ext %>% mutate(ADDSUM = (EC028Q01NA == 2 | EC028Q02NA == 2 | EC028Q03NA == 2))
+tbl_ciekawe_POL_ext <- tbl_ciekawe_POL_ext %>% mutate(ADDSUM = (EC028Q01NA == 2 | EC028Q02NA == 2 | EC028Q03NA == 2))
 
 
 

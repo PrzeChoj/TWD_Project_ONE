@@ -566,7 +566,7 @@ label_wspolnych <- cbind(nr_wspolnych, label_wspolnych, names_wspolnych) %>% tbl
 
 # urzywanie procent_prywatnych na tbl_ciekawe
 col <- tbl_ciekawe %>% colnames
-tbl_ciekawe[[29]]
+tbl_ciekawe[[40]]
 
 # nie rozumiem roznicy miedzy tymi dwoma
 srednia_prywatnych("TMINS") # srednia spedzoneczo czasu na nauce poza szkola w minutach
@@ -668,7 +668,8 @@ srednia_sponsorowanych_GBR(col_ext[91]) # zarobki2
 srednia_prywatnych_porownanie(col_ext[91]) # Super ciekawe
 
 
-srednia_sponsorowanych_GBR(col_ext[76])
+srednia_sponsorowanych_GBR(col_ext[30])
+srednia_rodzaji_porownanie(col_ext[30])
 
 
 
@@ -678,37 +679,92 @@ srednia_sponsorowanych_GBR(col_ext[76])
 # wykresy korkow
 # 44:55, 56:68
 # ciekawe: 47, 48, 49, 50, 53, 54, 58, 60, 61, 63, 66
-wykres_korkow(68)
+wykres_korkow(92)
 
 # tabelka dla ciekawych
-ciekawe_korki <- col_ext[c(47, 48, 49, 50)] #, 53, 54, 58, 60, 61, 63, 66)]
-data <- do_plota(srednia_prywatnych_porownanie(ciekawe_korki[1]))
+ciekawe_korki <- col_ext[c(48, 53, 95)]
+tmp_duzy[[ciekawe_korki[3]]]
+
+data <- do_plota(srednia_rodzaji_porownanie(ciekawe_korki[1]))[1:5,]
+data$kolumny <- c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana")
 
 name <- attr(tmp_duzy[[ciekawe_korki[1]]], "label")
 title <- name %>% substr(1, 10)
 subtitle <- name %>% substr(60, nchar(name))
 nazwa <- paste(title, subtitle, sep="->")
-data$oryginalna_nazwa <- rep(nazwa, 4)
+data$oryginalna_nazwa <- rep(nazwa, 5)
 
 for(i in 2:length(ciekawe_korki)){
-  d <- do_plota(srednia_prywatnych_porownanie(ciekawe_korki[i]))
-  
+  d <- do_plota(srednia_rodzaji_porownanie(ciekawe_korki[i]))[1:5,]
+  d$kolumny <- c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana")
   
   name <- attr(tmp_duzy[[ciekawe_korki[i]]], "label")
+  if(is.null(name)){name <- "W przeszlosc chodzilem na korki"}
   title <- name %>% substr(1, 10)
   subtitle <- name %>% substr(60, nchar(name))
   nazwa <- paste(title, subtitle, sep="->")
-  d$oryginalna_nazwa <- rep(nazwa, 4)
+  d$oryginalna_nazwa <- rep(nazwa, 5)
   
   
   data <- rbind(data, d)
 } # data idzie do wykresu
+
+data$oryginalna_nazwa <- c(rep("Chodze na korki, bo moi koledzy chdza", 5), rep("Chodze na korki, bo dobrze to wyglada w CV", 5), rep("Chodzilem kiedys na korki", 5))
 
 ggplot(data, aes(x=wiersze, fill=kolumny)) +
   geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour=NA) +
   geom_text(aes(label = dane, y=dane-0.02, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   facet_wrap(~ oryginalna_nazwa, scales = "free", ncol=1)
+
+
+
+# poszukam informacji o !dodatkowych! zajeciach
+nazwy_kolumn <- colnames(tmp_duzy)
+for(i in 1:921){ # 921
+  if(str_detect(attr(tmp_duzy[[nazwy_kolumn[i]]], "label"), "dditional")){
+    print(i)
+    print(attr(tmp_duzy[[nazwy_kolumn[i]]], "label"))
+  }
+} # 481:483 1-YES, 2-NO
+colnames(tmp_duzy)[481]
+((tmp_duzy[[481]] - 1) | (tmp_duzy[[482]] - 1) | (tmp_duzy[[483]] - 1)) %>% table
+# znalazlem i ododalem do tbl_ciekawe_GBR_ext i tbl_ciekawe_POL_ext
+
+
+
+
+
+# 30 Jak duzo w tygodniu sie uczylem ojczystego, 31 obcego, 36 Ile tygodniowo zajec z ojczystego, 37 obcego
+srednia_rodzaji_porownanie(col_ext[30]) %>% do_plota()
+srednia_rodzaji_porownanie(col_ext[31])
+srednia_rodzaji_porownanie(col_ext[36])
+srednia_rodzaji_porownanie(col_ext[37])
+
+dane_jezyki_do_plota <- matrix(ncol=5, nrow=0)
+for(i in c(30, 31, 36, 37)){
+  tmp <- (srednia_rodzaji_porownanie(col_ext[i]) %>% do_plota())[1:5,]
+  tmp$numer <- rep(i, 5)
+  dane_jezyki_do_plota <- rbind(dane_jezyki_do_plota, tmp)
+}
+dane_jezyki_do_plota$kolumny <- rep(c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana"), 4)
+nazwa_wykresu <- c("Godzin tygodniowo nauki jezyka ojczystego", "Godzin tygodniowo nauki jezyka obcego",
+                   "Godzin tygodniowo zajec jezyka ojczystego", "Godzin tygodniowo zajec jezyka obcego")
+dane_jezyki_do_plota$numer <- rep(nazwa_wykresu, each=5)
+
+ggplot(dane_jezyki_do_plota, aes(x=wiersze, fill=kolumny)) +
+  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour=NA) +
+  geom_text(aes(label = dane, y=dane*0.92-0.1, fontface="bold"),
+            position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
+  facet_wrap(~ numer, scales = "free", ncol=1)
+
+
+
+
+
+
+
+
 
 
 

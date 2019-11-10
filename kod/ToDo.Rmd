@@ -122,6 +122,12 @@ Caly zestwa o korkach: `col_ext[44:68]`\
 
 
 
- 
+## Biecek:
+1. Wykres 19 państw: zamiast skrajności: 10 kwantyl; dodać Polskę na chama\
+2. Viomplot jest za dużo informacji, pogrupuj żeńskie, męskie mieszane. Niezależne najwyżej będzie dobrze widoczne; może zamienić osie? Dodać Polskę, żeby pasowało. Może między 40, a 60 kwantylem wypełnione viomplot, a poza pusty?\
+3. Na słupki podział GBR na niezależne, akademie; wybrać 2, albo 3\
+4. Opisy maja być krótkie w miarę możliwości. Największe 2 trzeba dokładnie opisać tym bardziej, że niezwiązane z PISA\
+5. Potrzeba płęta. Jak ktoś zobaczy tytuł plakatu i płetę to będzie wiedział o co chodziło.\
+6. Zrobić wykres o języku: jest tyle samo godzin z języka obcego i ojczystego, ale w prywatnych mniej się uczą w domu, trzeba to wyjaśnić-opisać; jeśli będzie miejsce na plakacie to wykres z wyniku PISA z czytania\
  
  
