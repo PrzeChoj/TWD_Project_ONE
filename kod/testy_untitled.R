@@ -668,7 +668,8 @@ srednia_sponsorowanych_GBR(col_ext[91]) # zarobki2
 srednia_prywatnych_porownanie(col_ext[91]) # Super ciekawe
 
 
-srednia_sponsorowanych_GBR(col_ext[76])
+srednia_sponsorowanych_GBR(col_ext[30])
+srednia_rodzaji_porownanie(col_ext[30])
 
 
 
@@ -729,6 +730,36 @@ for(i in 1:921){ # 921
 colnames(tmp_duzy)[481]
 ((tmp_duzy[[481]] - 1) | (tmp_duzy[[482]] - 1) | (tmp_duzy[[483]] - 1)) %>% table
 # znalazlem i ododalem do tbl_ciekawe_GBR_ext i tbl_ciekawe_POL_ext
+
+
+
+
+
+# 30 Jak duzo w tygodniu sie uczylem ojczystego, 31 obcego, 36 Ile tygodniowo zajec z ojczystego, 37 obcego
+srednia_rodzaji_porownanie(col_ext[30]) %>% do_plota()
+srednia_rodzaji_porownanie(col_ext[31])
+srednia_rodzaji_porownanie(col_ext[36])
+srednia_rodzaji_porownanie(col_ext[37])
+
+dane_jezyki_do_plota <- matrix(ncol=5, nrow=0)
+for(i in c(30, 31, 36, 37)){
+  tmp <- (srednia_rodzaji_porownanie(col_ext[i]) %>% do_plota())[1:5,]
+  tmp$numer <- rep(i, 5)
+  dane_jezyki_do_plota <- rbind(dane_jezyki_do_plota, tmp)
+}
+dane_jezyki_do_plota$kolumny <- rep(c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana"), 4)
+nazwa_wykresu <- c("Godzin tygodniowo nauki jezyka ojczystego", "Godzin tygodniowo nauki jezyka obcego",
+                   "Godzin tygodniowo zajec jezyka ojczystego", "Godzin tygodniowo zajec jezyka obcego")
+dane_jezyki_do_plota$numer <- rep(nazwa_wykresu, each=5)
+
+ggplot(dane_jezyki_do_plota, aes(x=wiersze, fill=kolumny)) +
+  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour=NA) +
+  geom_text(aes(label = dane, y=dane*0.92-0.1, fontface="bold"),
+            position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
+  facet_wrap(~ numer, scales = "free", ncol=1)
+
+
+
 
 
 
