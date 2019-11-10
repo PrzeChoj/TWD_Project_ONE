@@ -153,6 +153,12 @@ wykres_korkow <- function(n){
     labs(title = title, subtitle = subtitle)
 }
 
+srednia_rodzaji_porownanie <- function(nazwa){
+  out <- rbind(srednia_sponsorowanych_GBR(nazwa), c(srednia_prywatnych_POL(nazwa), NA))
+  rownames(out) <- c("GBR", "POL")
+  colnames(out) <- c("akademicka/publiczna", "niezalezna/prywatna", "utrzymywana")
+  out
+}
 
 
 
