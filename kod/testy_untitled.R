@@ -566,7 +566,7 @@ label_wspolnych <- cbind(nr_wspolnych, label_wspolnych, names_wspolnych) %>% tbl
 
 # urzywanie procent_prywatnych na tbl_ciekawe
 col <- tbl_ciekawe %>% colnames
-tbl_ciekawe[[40]]
+tbl_ciekawe[[31]]
 
 # nie rozumiem roznicy miedzy tymi dwoma
 srednia_prywatnych("TMINS") # srednia spedzoneczo czasu na nauce poza szkola w minutach
@@ -679,10 +679,10 @@ srednia_rodzaji_porownanie(col_ext[30])
 # wykresy korkow
 # 44:55, 56:68
 # ciekawe: 47, 48, 49, 50, 53, 54, 58, 60, 61, 63, 66
-wykres_korkow(92)
+wykres_korkow(53)
 
 # tabelka dla ciekawych
-ciekawe_korki <- col_ext[c(48, 53, 95)]
+ciekawe_korki <- col_ext[c(48, 95)] # wyjebalem 53
 tmp_duzy[[ciekawe_korki[3]]]
 
 data <- do_plota(srednia_rodzaji_porownanie(ciekawe_korki[1]))[1:5,]
@@ -709,14 +709,64 @@ for(i in 2:length(ciekawe_korki)){
   data <- rbind(data, d)
 } # data idzie do wykresu
 
-data$oryginalna_nazwa <- c(rep("Chodze na korki, bo moi koledzy chdza", 5), rep("Chodze na korki, bo dobrze to wyglada w CV", 5), rep("Chodzilem kiedys na korki", 5))
+data$oryginalna_nazwa <- c(rep("Chodze na korki, bo moi koledzy chodza", 5), rep("Chodzilem kiedys na zajecia pozalekcyjne", 5))
+data <- data[c(3, 1, 5, 2, 4, 8, 6, 10, 7, 9),]
 
-ggplot(data, aes(x=wiersze, fill=kolumny)) +
+ggplot(data, aes(x= wiersze, fill=factor(kolumny, levels(factor(data$kolumny))))) +
   geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour=NA) +
   geom_text(aes(label = dane, y=dane-0.02, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
-  facet_wrap(~ oryginalna_nazwa, scales = "free", ncol=1)
+  facet_wrap(~ oryginalna_nazwa, scales = "free", ncol=2) +
+  theme(legend.position="bottom")
 
+  
+
+
+# podziele to na 2 obrazki
+# 1
+data <- do_plota(srednia_rodzaji_porownanie(col_ext[48]))[1:5,]
+data$kolumny <- c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana")
+
+name <- attr(tmp_duzy[[ciekawe_korki[1]]], "label")
+title <- name %>% substr(1, 10)
+subtitle <- name %>% substr(60, nchar(name))
+nazwa <- paste(title, subtitle, sep="->")
+data$oryginalna_nazwa <- rep(nazwa, 5)
+# data idzie do wykresu
+
+data <- data[c(3, 1, 5, 2, 4),]
+
+ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny))) +
+  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black") +
+  scale_y_continuous(limits = c(0, 40), breaks = seq(0, 50, 10), labels = paste(seq(0, 50, 10), "%", sep=""), expand = c(0, 0)) +
+  geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-0.5, fontface="bold"),
+            position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Chodze na korki, bo moi koledzy chodza", x ="rodzaj szkoly", y = "procent odpowiedzi")
+  
+  
+# 2
+data <- do_plota(srednia_rodzaji_porownanie(col_ext[95]))[1:5,]
+data$kolumny <- c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana")
+
+name <- attr(tmp_duzy[[ciekawe_korki[1]]], "label")
+title <- name %>% substr(1, 10)
+subtitle <- name %>% substr(60, nchar(name))
+nazwa <- paste(title, subtitle, sep="->")
+data$oryginalna_nazwa <- rep(nazwa, 5)
+
+data <- data[c(3, 1, 5, 2, 4),]
+
+ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny))) +
+  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black") +
+  scale_y_continuous(limits = c(0, 105), breaks = seq(0, 100, 10), labels = paste(seq(0, 100, 10), "%", sep=""), expand = c(0, 0)) +
+  geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-2, fontface="bold"),
+            position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Chodzilem kiedys na zajecia pozalekcyjne", x ="rodzaj szkoly", y = "procent odpowiedzi")
+#
 
 
 # poszukam informacji o !dodatkowych! zajeciach
@@ -742,21 +792,24 @@ srednia_rodzaji_porownanie(col_ext[36])
 srednia_rodzaji_porownanie(col_ext[37])
 
 dane_jezyki_do_plota <- matrix(ncol=5, nrow=0)
-for(i in c(30, 31, 36, 37)){
+for(i in c(31, 37)){ # wyjebalem 30, 36
   tmp <- (srednia_rodzaji_porownanie(col_ext[i]) %>% do_plota())[1:5,]
   tmp$numer <- rep(i, 5)
   dane_jezyki_do_plota <- rbind(dane_jezyki_do_plota, tmp)
 }
-dane_jezyki_do_plota$kolumny <- rep(c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana"), 4)
-nazwa_wykresu <- c("Godzin tygodniowo nauki jezyka ojczystego", "Godzin tygodniowo nauki jezyka obcego",
-                   "Godzin tygodniowo zajec jezyka ojczystego", "Godzin tygodniowo zajec jezyka obcego")
+dane_jezyki_do_plota$kolumny <- rep(c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana"), 2)
+nazwa_wykresu <- c("NAUKA", "ZAJECIA")
 dane_jezyki_do_plota$numer <- rep(nazwa_wykresu, each=5)
 
 ggplot(dane_jezyki_do_plota, aes(x=wiersze, fill=kolumny)) +
-  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour=NA) +
-  geom_text(aes(label = dane, y=dane*0.92-0.1, fontface="bold"),
+  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour="black") +
+  scale_y_continuous(limits = c(0, 6.2), breaks = seq(0, 6, 2), labels = paste(seq(0, 6, 2), "h", sep=""), expand = c(0, 0)) +
+  geom_text(aes(label = dane, y=dane-0.1, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
-  facet_wrap(~ numer, scales = "free", ncol=1)
+  facet_wrap( ~ numer, scales = "fixed", ncol=2) + 
+  labs(title="Jezyk obcy", x ="rodzaj szkoly", y = "godziny tygodniowo") +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank())
 
 
 
