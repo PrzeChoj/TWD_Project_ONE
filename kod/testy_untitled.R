@@ -682,8 +682,8 @@ srednia_rodzaji_porownanie(col_ext[30])
 wykres_korkow(53)
 
 # tabelka dla ciekawych
-ciekawe_korki <- col_ext[c(48, 95)] # wyjebalem 53
-tmp_duzy[[ciekawe_korki[3]]]
+ciekawe_korki <- col_ext[c(53, 95)] # wyjebalem 48
+tmp_duzy[[ciekawe_korki[1]]]
 
 data <- do_plota(srednia_rodzaji_porownanie(ciekawe_korki[1]))[1:5,]
 data$kolumny <- c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana")
@@ -724,7 +724,7 @@ ggplot(data, aes(x= wiersze, fill=factor(kolumny, levels(factor(data$kolumny))))
 
 # podziele to na 2 obrazki
 # 1
-data <- do_plota(srednia_rodzaji_porownanie(col_ext[48]))[1:5,]
+data <- do_plota(srednia_rodzaji_porownanie(col_ext[53]))[1:5,]
 data$kolumny <- c("akademicka", "publiczna", "niezalezna", "prywatna", "utrzymywana")
 
 name <- attr(tmp_duzy[[ciekawe_korki[1]]], "label")
@@ -738,12 +738,12 @@ data <- data[c(3, 1, 5, 2, 4),]
 
 ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny))) +
   geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black") +
-  scale_y_continuous(limits = c(0, 40), breaks = seq(0, 50, 10), labels = paste(seq(0, 50, 10), "%", sep=""), expand = c(0, 0)) +
-  geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-0.5, fontface="bold"),
+  scale_y_continuous(limits = c(0, 45), breaks = seq(0, 50, 10), labels = paste(seq(0, 50, 10), "%", sep=""), expand = c(0, 0)) +
+  geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-1.3, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   theme_bw() +
   theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="Chodze na korki, bo moi koledzy chodza", x ="rodzaj szkoly", y = "procent odpowiedzi")
+  labs(title="Chodze na korki, bo wyglada to dobrze w CV", x ="rodzaj szkoly", y = "procent odpowiedzi")
   
   
 # 2

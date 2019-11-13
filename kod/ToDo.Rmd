@@ -1,9 +1,9 @@
 ---
 title: "ToDo"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -143,7 +143,8 @@ Caly zestwa o korkach: `col_ext[44:68]`\
 
 
 Opisy obrazkow Adas:\
-1. W Polsce młodzież ze szkół prywatnych, a w brytanii uczniowie ze szkół niezależnych, są bardziej odporni na działającą w ich otoczeniu presję społeczną. Widzimy to na przykład, gdy o polowę mniej Polskich dzieci z prywatnych szkół twierdzi, że chodzi na kory ze względu na kolegów ze szkoły. Jeśli chodzi o brytyjskie dzieci, aż $3$ krotnie mniej.\
+1a. W Polsce młodzież ze szkół prywatnych, a w brytanii uczniowie ze szkół niezależnych, są bardziej odporni na działającą w ich otoczeniu presję społeczną. Widzimy to na przykład, gdy o polowę mniej Polskich dzieci z prywatnych szkół twierdzi, że chodzi na kory ze względu na kolegów ze szkoły. Jeśli chodzi o brytyjskie dzieci, aż $3$ krotnie mniej.\
+1b. Młodzeż ze szkół prywatnych jest mniej przekonana, że w `CV` ktoś będzie zwracał uwagę na chodzenie na korki. Być może wydaje im się, że jeśli chodzą do lepszej szkoły, to to bardziej zainteresuje ewentualnego pracodawcę. Uczniowie ze szkół publicznych z kolei uważają, że dodatkowa aktywność przyciągnie oczy pracodawców. W szczególności w szkołach akademickich, gdzie uczniowie są zachęcani do aktywności pozalekcyjnej.\
 2. W Wielkiej Brytanii bardzo dużo uczniów chodzi na zajęcia pozalekcyjne. W szkołach niezaleśnych wszyscy twierdzą, że kiedyś na takie zajęcia uczęszczali. W Polsce ten współczynnik jest niższy. (Następne zdanie jest niepotrzebne)Nie szanują swoich nauczycieli?\
 3. Dla Polaków nauka języka obcego jest ważniejsza niż dla wyspiarzy. Jednakże polscy uczniowie w porównaniu z brytyjskimi mają średnio tylko o $0.5$ godziny więcej tygodniowo zajęć z języka obcego. Jednakże czas spędzony na nauce tego przedmiotu jest $2$ krotnie wyższy. Widać tu jeden z powodów, dlaczego nasz kraj jest tak nisko w rankingu(jakim rankingu?)-mamy źle zaprojektowany systemu nauczania i nakładamy na dzieci wymagania, których ich nie uczymy. (Następne zdanie jest niepotrzebne)Szkoły prywatne w Polsce starają się ograniczyć wymagania dzięki czemu ichne dzieci spędzają aż o godzinę mniej nad językiem, a wynimi mają od nich leprze, jednakże obowiązują ich te same wymagania co wszystkich przez co i tak muszą na dzieciaki nakładać zbyt dużą ilość pracy.\
 
@@ -155,18 +156,18 @@ Opisy obrazkow Adas:\
 ```{r, obrazek1}
 kolumny <- c("niezalezna", "akademicka", "utrzymywana", "publiczna", "prywatna")
 wiersze <- c("GBR", "GBR", "GBR", "POL", "POL")
-dane <- c(0.09, 0.319, 0.275, 0.264, 0.132)
+dane <- c(0.09, 0.404, 0.293, 0.201, 0.075)
 data <- cbind(kolumny, wiersze, dane) %>% tbl_df()
 data$dane <- as.numeric(data$dane)
 
 ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny))) +
   geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black") +
-  scale_y_continuous(limits = c(0, 40), breaks = seq(0, 50, 10), labels = paste(seq(0, 50, 10), "%", sep=""), expand = c(0, 0)) +
-  geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-1, fontface="bold"),
+  scale_y_continuous(limits = c(0, 45), breaks = seq(0, 50, 10), labels = paste(seq(0, 50, 10), "%", sep=""), expand = c(0, 0)) +
+  geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-1.3, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   theme_bw() +
   theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="Chodze na korki, bo moi koledzy chodza", x ="rodzaj szkoly", y = "procent odpowiedzi")
+  labs(title="Chodze na korki, bo wyglada to dobrze w CV", x ="rodzaj szkoly", y = "procent odpowiedzi")
 ```
 
 2. Tu do poprawy napisy `GBR` i `POL` na `Wielka Brytania` i `Polska`.\
