@@ -1,9 +1,9 @@
 ---
 title: "ToDo"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -159,46 +159,53 @@ Opisy obrazkow Adas:\
 The youths of private schools are less confident, that additional science instruction is an interesting thing in résumé. Perhaps they are convinced that attending a better school is more attractive than additional science instruction. On the other hand, kids from Public schools are encouraged that additional activity will interest the employer. In particular, youths of Academies, where pupils are encouraged to additional activities.\
 ```{r, obrazek1}
 kolumny <- c("Independent", "Academy", "Maintained", "Private", "Public")
-wiersze <- c("United Kingdom", "United Kingdom", "United Kingdom", "Poland", "Poland")
+wiersze <- c(" UNITED KINGDOM", " UNITED KINGDOM", " UNITED KINGDOM", "POLAND", "POLAND")
 dane <- c(0.09, 0.404, 0.293, 0.075, 0.201)
 data <- cbind(kolumny, wiersze, dane) %>% tbl_df()
 data$dane <- as.numeric(data$dane)
 
 ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny))) +
-  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black") +
+  scale_fill_manual(values = c("#00247D", "#b3b3b3", "#CF142B", "#ffffff", "#660033"),
+                    name = NULL,
+                    aesthetics = c("fill")) +
+  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black", alpha = 0.6) +
   scale_y_continuous(limits = c(0, 45), breaks = seq(0, 50, 10), labels = paste(seq(0, 50, 10), "%", sep=""), expand = c(0, 0)) +
   geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-1.3, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   theme_bw() +
-  theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="I attend on additional science instruction,\nbecause it looks good on a résumé", x ="Type of school", y = "Percentage of answers")
+  theme(legend.position="bottom", panel.background = element_rect("#DEE7EF"), legend.title=element_blank()) +
+  labs(title="I ATTEND ON ADDITIONAL SCIENCE INSTRUCTION,\nBECAUSE IT LOOKS GOOD ON A CV",
+       x ="Type of school", y = "Percentage of answers")
 ```
 
 ### 2
 In the UK many students attend additional science instructions. In Independent schools, everyone claims they are/were attending an extracurricular class. In Poland, this factor is smaller.\
 ```{r obrazek2}
 kolumny <- c("Independent", "Academy", "Maintained", "Private", "Public")
-wiersze <- c("United Kingdom", "United Kingdom", "United Kingdom", "Poland", "Poland")
+wiersze <- c(" UNITED KINGDOM", " UNITED KINGDOM", " UNITED KINGDOM", "POLAND", "POLAND")
 dane <- c(1, 0.82, 0.833, 0.611, 0.677)
 data <- cbind(kolumny, wiersze, dane) %>% tbl_df()
 data$dane <- as.numeric(data$dane)
 
 ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny))) +
-  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black") +
+  scale_fill_manual(values = c("#00247D", "#b3b3b3", "#CF142B", "#ffffff", "#660033"),
+                    name = NULL,
+                    aesthetics = c("fill")) +
+  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black", alpha = 0.6) +
   scale_y_continuous(limits = c(0, 105), breaks = seq(0, 100, 10),
                      labels = paste(seq(0, 100, 10), "%", sep=""), expand = c(0, 0)) +
   geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-3, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   theme_bw() +
-  theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="I am/was attending on extracurricular class", x ="Type of school", y = "Percentage of answers")
+  theme(legend.position="bottom", panel.background = element_rect("#DEE7EF"), legend.title=element_blank()) +
+  labs(title="I AM/WAS ATTENDING ON EXTRACURRICULAR CLASS", x ="Type of school", y = "Percentage of answers")
 ```
 
 ### 3
 For Polish people, the study of Foreign language is more important than for UK people. However, Polish students comparatively to UK ones have only 0.5 of an hour per week of Foreign language in school. What's more, the time that Polish people spend on learning doubles UK students' time. It is one of the reasons, why the Polish school system is way lower than the UK's in ranking-Poland have poorly designed school system and teachers require from pupils knowledged they do not teach them. That's why children have to spend a lot of time in home studying.\
 ```{r, obrazek3}
 kolumny <- rep(c("Independent", "Academy", "Maintained", "Private", "Public")[c(2, 4, 1, 5, 3)], 2)
-wiersze <- rep(c("United Kingdom", "Poland", "United Kingdom", "Poland", "United Kingdom"), 2)
+wiersze <- rep(c(" UNITED KINGDOM", "POLAND", " UNITED KINGDOM", "POLAND", " UNITED KINGDOM"), 2)
 dane <- c(2.44, 5.95, 2.47, 5.19, 2.91, 1.54, 2.29, 1.46, 2.02, 1.76)
 numer <- c(rep("LEARNING", 5), rep("CLASS", 5))
 data <- cbind(kolumny, wiersze, dane, numer) %>% tbl_df()
@@ -206,15 +213,18 @@ data$dane <- as.numeric(data$dane)
 data <- data[c(3, 1, 5, 4, 2, 8, 6, 10, 9, 7),]
 
 ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny[1:5]))) +
-  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour="black") +
+  scale_fill_manual(values = c("#00247D", "#b3b3b3", "#CF142B", "#ffffff", "#660033"),
+                    name = NULL,
+                    aesthetics = c("fill")) +
+  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour="black", alpha = 0.6) +
   scale_y_continuous(limits = c(0, 6.2), breaks = seq(0, 6, 2),
                      labels = paste(seq(0, 6, 2), "h", sep=""), expand = c(0, 0)) +
   geom_text(aes(label = dane, y=dane-0.17, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   facet_wrap( ~ numer, scales = "fixed", ncol=2) + 
-  labs(title="Foreign language", x ="Type of school", y = "Hours in week") +
+  labs(title="FOREIGN LANGUAGE", x ="Type of school", y = "Hours in week") +
   theme_bw() +
-  theme(legend.position="bottom", legend.title=element_blank())
+  theme(legend.position="bottom", panel.background = element_rect("#DEE7EF"), legend.title=element_blank())
 ```
 
 
