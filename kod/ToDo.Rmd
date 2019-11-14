@@ -1,9 +1,9 @@
 ---
 title: "ToDo"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -226,6 +226,41 @@ ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny[1:5]))) +
   theme_bw() +
   theme(legend.position="bottom", panel.background = element_rect("#DEE7EF"), legend.title=element_blank())
 ```
+
+
+
+
+
+Paulinowe:\
+1. Quality of school system isn't only dependent from score on tests. UK is placed on 6th place thanks to it's approach to education. It's focused on pupils' self-realization, comfort and relations student-teacher.\
+2. UK categorize it's schools by financing method:\
+* Independent - Private and independent form goverment. Have it's own sponsors and curriculum.\
+* Academy - Have good reputation and are controled by goverment.\
+* Maintained - Are controled by local authority. Closest to Polish public schools.\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
