@@ -145,70 +145,122 @@ Caly zestwa o korkach: `col_ext[44:68]`\
 Opisy obrazkow Adas:\
 1a. W Polsce młodzież ze szkół prywatnych, a w brytanii uczniowie ze szkół niezależnych, są bardziej odporni na działającą w ich otoczeniu presję społeczną. Widzimy to na przykład, gdy o polowę mniej Polskich dzieci z prywatnych szkół twierdzi, że chodzi na kory ze względu na kolegów ze szkoły. Jeśli chodzi o brytyjskie dzieci, aż $3$ krotnie mniej.\
 1b. Młodzeż ze szkół prywatnych jest mniej przekonana, że w `CV` ktoś będzie zwracał uwagę na chodzenie na korki. Być może wydaje im się, że jeśli chodzą do lepszej szkoły, to to bardziej zainteresuje ewentualnego pracodawcę. Uczniowie ze szkół publicznych z kolei uważają, że dodatkowa aktywność przyciągnie oczy pracodawców. W szczególności w szkołach akademickich, gdzie uczniowie są zachęcani do aktywności pozalekcyjnej.\
-2. W Wielkiej Brytanii bardzo dużo uczniów chodzi na zajęcia pozalekcyjne. W szkołach niezaleśnych wszyscy twierdzą, że kiedyś na takie zajęcia uczęszczali. W Polsce ten współczynnik jest niższy. (Następne zdanie jest niepotrzebne)Nie szanują swoich nauczycieli?\
+1ANG. The youths of private schools are less confidenced, that additional science instructions are interesting thing in résumé. Perhaps they are convinced that attending at better school is more attractive than additional science instruction. On the other hand, kids from Public schools are encouraged that additional activity will interest employer. In particular, youths of Academies, where pupils are encouraged to additional activities.\
+2. W Wielkiej Brytanii bardzo dużo uczniów chodzi na zajęcia pozalekcyjne. W szkołach niezależnych wszyscy twierdzą, że kiedyś na takie zajęcia uczęszczali. W Polsce ten współczynnik jest niższy. (Następne zdanie jest niepotrzebne)Nie szanują swoich nauczycieli?\
+2ANG. In UK many students attends on additional science instructions. In Independent schools everyone claims they are/where attending on extracurricular class. In Poland this factor is smaller.\
 3. Dla Polaków nauka języka obcego jest ważniejsza niż dla wyspiarzy. Jednakże polscy uczniowie w porównaniu z brytyjskimi mają średnio tylko o $0.5$ godziny więcej tygodniowo zajęć z języka obcego. Jednakże czas spędzony na nauce tego przedmiotu jest $2$ krotnie wyższy. Widać tu jeden z powodów, dlaczego nasz kraj jest tak nisko w rankingu(jakim rankingu?)-mamy źle zaprojektowany systemu nauczania i nakładamy na dzieci wymagania, których ich nie uczymy. (Następne zdanie jest niepotrzebne)Szkoły prywatne w Polsce starają się ograniczyć wymagania dzięki czemu ichne dzieci spędzają aż o godzinę mniej nad językiem, a wynimi mają od nich leprze, jednakże obowiązują ich te same wymagania co wszystkich przez co i tak muszą na dzieciaki nakładać zbyt dużą ilość pracy.\
+3ANG. For Polish people study of Foreign language is more important than for UK people. However, Polish students comparatively to UK's ones have only $0.5$ of hour per week of Foreign language in school. What's more, the time that Polish people spend on learning doubles UK's students time. It is one of the reasons, why Polish school system is way lower than UK in ranking-Poland have poorly designed school system and teachers require from pupils knowledged they do not teach them. That's why childrens have to spend a lot of time in home studying.\
 
 
 
 
 ## obrazki:
-1. Tu do poprawy napisy `GBR` i `POL` na `Wielka Brytania` i `Polska`.\
+### 1
+The youths of private schools are less confident, that additional science instruction is an interesting thing in résumé. Perhaps they are convinced that attending a better school is more attractive than additional science instruction. On the other hand, kids from Public schools are encouraged that additional activity will interest the employer. In particular, youths of Academies, where pupils are encouraged to additional activities.\
 ```{r, obrazek1}
-kolumny <- c("niezalezna", "akademicka", "utrzymywana", "publiczna", "prywatna")
-wiersze <- c("GBR", "GBR", "GBR", "POL", "POL")
-dane <- c(0.09, 0.404, 0.293, 0.201, 0.075)
+kolumny <- c("Independent", "Academy", "Maintained", "Private", "Public")
+wiersze <- c(" UNITED KINGDOM", " UNITED KINGDOM", " UNITED KINGDOM", "POLAND", "POLAND")
+dane <- c(0.09, 0.404, 0.293, 0.075, 0.201)
 data <- cbind(kolumny, wiersze, dane) %>% tbl_df()
 data$dane <- as.numeric(data$dane)
 
 ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny))) +
-  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black") +
+  scale_fill_manual(values = c("#00247D", "#b3b3b3", "#CF142B", "#ffffff", "#660033"),
+                    name = NULL,
+                    aesthetics = c("fill")) +
+  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black", alpha = 0.6) +
   scale_y_continuous(limits = c(0, 45), breaks = seq(0, 50, 10), labels = paste(seq(0, 50, 10), "%", sep=""), expand = c(0, 0)) +
   geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-1.3, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   theme_bw() +
-  theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="Chodze na korki, bo wyglada to dobrze w CV", x ="rodzaj szkoly", y = "procent odpowiedzi")
+  theme(legend.position="bottom", panel.background = element_rect("#DEE7EF"), legend.title=element_blank()) +
+  labs(title="I ATTEND ON ADDITIONAL SCIENCE INSTRUCTION,\nBECAUSE IT LOOKS GOOD ON A CV",
+       x ="Type of school", y = "Percentage of answers")
 ```
 
-2. Tu do poprawy napisy `GBR` i `POL` na `Wielka Brytania` i `Polska`.\
+### 2
+In the UK many students attend additional science instructions. In Independent schools, everyone claims they are/were attending an extracurricular class. In Poland, this factor is smaller.\
 ```{r obrazek2}
-kolumny <- c("niezalezna", "akademicka", "utrzymywana", "publiczna", "prywatna")
-wiersze <- c("GBR", "GBR", "GBR", "POL", "POL")
-dane <- c(1, 0.82, 0.833, 0.677, 0.611)
+kolumny <- c("Independent", "Academy", "Maintained", "Private", "Public")
+wiersze <- c(" UNITED KINGDOM", " UNITED KINGDOM", " UNITED KINGDOM", "POLAND", "POLAND")
+dane <- c(1, 0.82, 0.833, 0.611, 0.677)
 data <- cbind(kolumny, wiersze, dane) %>% tbl_df()
 data$dane <- as.numeric(data$dane)
 
 ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny))) +
-  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black") +
-  scale_y_continuous(limits = c(0, 105), breaks = seq(0, 100, 10), labels = paste(seq(0, 100, 10), "%", sep=""), expand = c(0, 0)) +
+  scale_fill_manual(values = c("#00247D", "#b3b3b3", "#CF142B", "#ffffff", "#660033"),
+                    name = NULL,
+                    aesthetics = c("fill")) +
+  geom_bar(stat="identity", aes(y=100*dane), position=position_dodge(), colour="black", alpha = 0.6) +
+  scale_y_continuous(limits = c(0, 105), breaks = seq(0, 100, 10),
+                     labels = paste(seq(0, 100, 10), "%", sep=""), expand = c(0, 0)) +
   geom_text(aes(label = paste(100*dane, "%", sep=""), y=100*dane-3, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   theme_bw() +
-  theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="Chodzilem kiedys na zajecia pozalekcyjne", x ="rodzaj szkoly", y = "procent odpowiedzi")
+  theme(legend.position="bottom", panel.background = element_rect("#DEE7EF"), legend.title=element_blank()) +
+  labs(title="I AM/WAS ATTENDING ON EXTRACURRICULAR CLASS", x ="Type of school", y = "Percentage of answers")
 ```
 
-\
-3. Tu do poprawy napisy `GBR` i `POL` na `Wielka Brytania` i `Polska`.\
+### 3
+For Polish people, the study of Foreign language is more important than for UK people. However, Polish students comparatively to UK ones have only 0.5 of an hour per week of Foreign language in school. What's more, the time that Polish people spend on learning doubles UK students' time. It is one of the reasons, why the Polish school system is way lower than the UK's in ranking-Poland have poorly designed school system and teachers require from pupils knowledged they do not teach them. That's why children have to spend a lot of time in home studying.\
 ```{r, obrazek3}
-kolumny <- rep(c("niezalezna", "akademicka", "utrzymywana", "publiczna", "prywatna")[c(2, 4, 1, 5, 3)], 2)
-wiersze <- rep(c("GBR", "POL", "GBR", "POL", "GBR"), 2)
+kolumny <- rep(c("Independent", "Academy", "Maintained", "Private", "Public")[c(2, 4, 1, 5, 3)], 2)
+wiersze <- rep(c(" UNITED KINGDOM", "POLAND", " UNITED KINGDOM", "POLAND", " UNITED KINGDOM"), 2)
 dane <- c(2.44, 5.95, 2.47, 5.19, 2.91, 1.54, 2.29, 1.46, 2.02, 1.76)
-numer <- c(rep("NAUKA", 5), rep("ZAJECIA", 5))
+numer <- c(rep("LEARNING", 5), rep("CLASS", 5))
 data <- cbind(kolumny, wiersze, dane, numer) %>% tbl_df()
 data$dane <- as.numeric(data$dane)
+data <- data[c(3, 1, 5, 4, 2, 8, 6, 10, 9, 7),]
 
-ggplot(data, aes(x=wiersze, fill=kolumny)) +
-  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour="black") +
+ggplot(data, aes(x=wiersze, fill=factor(kolumny, kolumny[1:5]))) +
+  scale_fill_manual(values = c("#00247D", "#b3b3b3", "#CF142B", "#ffffff", "#660033"),
+                    name = NULL,
+                    aesthetics = c("fill")) +
+  geom_bar(stat="identity", aes(y=dane), position=position_dodge(), colour="black", alpha = 0.6) +
   scale_y_continuous(limits = c(0, 6.2), breaks = seq(0, 6, 2),
                      labels = paste(seq(0, 6, 2), "h", sep=""), expand = c(0, 0)) +
-  geom_text(aes(label = dane, y=dane-0.1, fontface="bold"),
+  geom_text(aes(label = dane, y=dane-0.17, fontface="bold"),
             position=position_dodge(width=0.9), colour = "#000000", size=3.5) +
   facet_wrap( ~ numer, scales = "fixed", ncol=2) + 
-  labs(title="Jezyk obcy", x ="rodzaj szkoly", y = "godziny tygodniowo") +
+  labs(title="FOREIGN LANGUAGE", x ="Type of school", y = "Hours in week") +
   theme_bw() +
-  theme(legend.position="bottom", legend.title=element_blank())
+  theme(legend.position="bottom", panel.background = element_rect("#DEE7EF"), legend.title=element_blank())
 ```
+
+
+
+
+
+Paulinowe:\
+1. Quality of school system isn't only dependent from score on tests. UK is placed on 6th place thanks to it's approach to education. It's focused on pupils' self-realization, comfort and relations student-teacher.\
+2. UK categorize it's schools by financing method:\
+* Independent - Private and independent form goverment. Have it's own sponsors and curriculum.\
+* Academy - Have good reputation and are controled by goverment.\
+* Maintained - Are controled by local authority. Closest to Polish public schools.\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
