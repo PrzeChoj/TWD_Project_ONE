@@ -125,7 +125,7 @@ World_Results <- World_Results[Labels3, nomatch=0]
 World <- World_Results
 World[order(Label, decreasing = TRUE)] -> World
 
-levels(World$Label) <- c(" Korea", " Japan", " Russian Federation", " Singapore", " Finland", " United Kingdom", " United States",  " Denmark", " China",
+levels(Wynik$Label) <- c(" Korea", " Japan", " Russian Federation", " Singapore", " Finland", " United Kingdom", " United States",  " Denmark", " China",
                          " Netherlands", " Israel", " Canada", " Germany", " Hong Kong", " Ireland", " Norway",
                           " Slovenia", " Sweden", " France",  " Hungary", " Poland")
 
@@ -145,10 +145,10 @@ rbind(A, B, C) -> Wynik
 colnames(Wynik) <- c("quantiles", "CNT", "Label")
 Wynik <- as.data.table(Wynik)
 Wynik$quantiles <- as.numeric(Wynik$quantiles)
-Wynik[CNT!=" China",] -> Wynik
+#Wynik[CNT!=" China",] -> Wynik
 
-#svglite("wykres1.svg", width = 15, height = 10)
-ggplot(Wynik, aes( x = factor(Wynik$CNT, levels(World$Label)), y = quantiles, colour = Label)) +
+svglite("wykres1.svg", width = 15, height = 10)
+ggplot(Wynik, aes( x = factor(Wynik$CNT, rev(levels(Wynik$Label))), y = quantiles, colour = Label)) +
   geom_point(stat = "identity", alpha = 0.7) +
   theme_bw()+
   scale_y_continuous(expand = c(0,0), limits = c(350, 650)) +
@@ -159,17 +159,17 @@ ggplot(Wynik, aes( x = factor(Wynik$CNT, levels(World$Label)), y = quantiles, co
   #           color = "black", linetype = "dashed", alpha=0.27) +
   #geom_hline(yintercept = c(0,497.4420), size = 0.9, 
   #           color = "black", linetype = "dashed", alpha=0.27) +
-  annotate("point", x = 6, y = 433.5613, colour = "#00247D", size=6) +
-  annotate("point", x = 6, y = 497.4420, colour = "#CF142B", size=6) +
-  annotate("point", x = 6, y = 558.7130, colour = "#f2c10d", size=6) +
+  annotate("point", x = 16, y = 433.5613, colour = "#00247D", size=6) +
+  annotate("point", x = 16, y = 497.4420, colour = "#CF142B", size=6) +
+  annotate("point", x = 16, y = 558.7130, colour = "#f2c10d", size=6) +
   theme(legend.position = "bottom", 
-        axis.text.y = element_text(size = c(rep(10, 5), 17, rep(10, 13), 14)),
+        axis.text.y = element_text(size = c(14, rep(10, 14), 17, rep(10, 5))),
         plot.title = element_text(hjust = 1),
         panel.background = element_rect("#DEE7EF"),
         plot.margin = margin(t = 0.3, r = 0.5, b = 0, l = 0.5, "cm")) +
-  annotate("point", x = 20, y = 446.6301, colour = "#00247D", size=4) +
-  annotate("point", x = 20, y = 506.9538, colour = "#CF142B", size=4) +
-  annotate("point", x = 20, y = 565.3908, colour = "#f2c10d", size=4) +
+  annotate("point", x = 1, y = 446.6301, colour = "#00247D", size=4) +
+  annotate("point", x = 1, y = 506.9538, colour = "#CF142B", size=4) +
+  annotate("point", x = 1, y = 565.3908, colour = "#f2c10d", size=4) +
   geom_hline(yintercept = c(0,506.9538), size = 0.7, 
              color = "black", linetype = "dashed", alpha=0.27) +
   coord_flip() +
@@ -177,7 +177,7 @@ ggplot(Wynik, aes( x = factor(Wynik$CNT, levels(World$Label)), y = quantiles, co
                       label = c("quantile 25%", "median", "quantile 75%"),
                       name = NULL) +
   xlab(expression("THE BEST" %->% "THE WORST"))
-#dev.off()
+dev.off()
 
 ```
 
@@ -226,14 +226,14 @@ rysunek <- rysunek[!is.na(SC013Q01TA),]
 z <- rbind( wynik[, .(MEAN, type, sex)], cbind(rysunek[, .(MEAN, SC013Q01TA)], rep("polish", 4419)), use.names = FALSE)
 levels(z$type) <- c(" independent", "academy", "maintained", "private", "public")
 
-#svglite("wykres2.svg", width = 15, height = 10)
+svglite("wykres2.svg", width = 15, height = 10)
 ggplot(z, aes(x = sex, y = MEAN)) +
   theme_bw() +
   theme(legend.position = "bottom",
         axis.ticks.x = element_blank(),
         panel.background = element_rect("#DEE7EF"),
         panel.grid.major.x = element_blank()) +
-  geom_violin(aes(color = type), fill="transparent", alpha = 0.4, adjust = 0.7, draw_quantiles = c(0.2, 0.8), linetype = 2) +
+  geom_violin(aes(color = type), fill="transparent", alpha = 0.4, adjust = 0.7, draw_quantiles = c(0.25, 0.75), linetype = 2) +
   geom_violin(aes(fill = type, color = type), alpha = 0.3, adjust = 0.7, draw_quantiles = 0.5) +
   labs(x = "Type of schools",
        y = "Student results",
@@ -248,7 +248,7 @@ ggplot(z, aes(x = sex, y = MEAN)) +
   scale_y_continuous(breaks = seq(200, 800, 100),
                      minor_breaks = seq(200, 800, 100)) +
   scale_x_discrete(labels = c("female", "male", "mixed", "mixed (polish)")) 
-#dev.off()
+dev.off()
 
 #ggplot(wynik, aes(x = sex, y = MEAN)) +
 #  theme_bw() +
